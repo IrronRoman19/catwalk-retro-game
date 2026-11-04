@@ -1,20 +1,58 @@
 const canvas = document.querySelector('#game-canvas');
 const context = canvas.getContext('2d');
 const positionReadout = document.querySelector('#position-readout');
+const scoreReadout = document.querySelector('#score-readout');
 const motionReadout = document.querySelector('#motion-readout');
 
 const keys = new Set();
 const cat = { x: canvas.width / 2, y: canvas.height / 2, speed: 235, direction: 'down', walking: false, frame: 0 };
+const collectibles = [
+  { type: 'fish', x: 180, y: 145, value: 100, active: true },
+  { type: 'milk', x: 760, y: 420, value: 150, active: true },
+  { type: 'fish', x: 610, y: 160, value: 100, active: true }
+];
+let score = 0;
+let respawnTimer = 0;
+let respawnsPending = 0;
+let pickupMessage = '';
+let audioContext;
+let stepTimer = 0;
 let lastTime = performance.now();
 
 window.addEventListener('keydown', (event) => {
   if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(event.key)) {
     event.preventDefault();
+    startAudio();
     keys.add(event.key);
     canvas.focus();
   }
 });
 window.addEventListener('keyup', (event) => keys.delete(event.key));
+
+function startAudio() {
+  if (!audioContext) audioContext = new AudioContext();
+  if (audioContext.state === 'suspended') audioContext.resume();
+}
+
+function playTone(frequency, duration, type = 'square', volume = 0.035, delay = 0) {
+  if (!audioContext) return;
+  const start = audioContext.currentTime + delay;
+  const oscillator = audioContext.createOscillator();
+  const gain = audioContext.createGain();
+  oscillator.type = type;
+  oscillator.frequency.value = frequency;
+  gain.gain.setValueAtTime(0.001, start);
+  gain.gain.exponentialRampToValueAtTime(volume, start + 0.01);
+  gain.gain.exponentialRampToValueAtTime(0.001, start + duration);
+  oscillator.connect(gain).connect(audioContext.destination);
+  oscillator.start(start);
+  oscillator.stop(start + duration + 0.02);
+}
+
+function playPickupSound(type) {
+  const notes = type === 'fish' ? [520, 780] : [392, 523, 659];
+  notes.forEach((note, index) => playTone(note, 0.12, 'square', 0.045, index * 0.08));
+}
 
 function update(delta) {
   let horizontal = 0;
@@ -29,9 +67,49 @@ function update(delta) {
   else if (vertical) cat.direction = vertical < 0 ? 'up' : 'down';
   cat.x = Math.max(34, Math.min(canvas.width - 34, cat.x + horizontal * cat.speed * delta));
   cat.y = Math.max(48, Math.min(canvas.height - 44, cat.y + vertical * cat.speed * delta));
-  if (cat.walking) cat.frame = (cat.frame + delta * 9) % 2;
+  if (cat.walking) {
+    cat.frame = (cat.frame + delta * 9) % 2;
+    stepTimer -= delta;
+    if (stepTimer <= 0) {
+      playTone(105, 0.045, 'square', 0.018);
+      stepTimer = 0.22;
+    }
+  } else stepTimer = 0;
+  collectItems();
+  if (respawnTimer > 0) {
+    respawnTimer -= delta;
+    if (respawnTimer <= 0) {
+      spawnItem();
+      respawnsPending -= 1;
+      if (respawnsPending > 0) respawnTimer = 1.5 + Math.random() * 2.5;
+    }
+  }
   positionReadout.textContent = `X ${String(Math.round(cat.x)).padStart(4, '0')} / Y ${String(Math.round(cat.y)).padStart(4, '0')}`;
+  scoreReadout.textContent = `SCORE ${String(score).padStart(4, '0')}`;
   motionReadout.textContent = cat.walking ? `WALKING // FACING ${cat.direction.toUpperCase()}` : 'STANDING BY';
+}
+
+function collectItems() {
+  collectibles.forEach((item) => {
+    if (!item.active || Math.hypot(cat.x - item.x, cat.y - item.y) > 34) return;
+    item.active = false;
+    score += item.value;
+    pickupMessage = `${item.type.toUpperCase()} +${item.value}`;
+    playPickupSound(item.type);
+    respawnsPending += 1;
+    if (respawnTimer <= 0) respawnTimer = 1.5 + Math.random() * 2.5;
+  });
+}
+
+function spawnItem() {
+  const inactiveItems = collectibles.filter((item) => !item.active);
+  const item = inactiveItems[Math.floor(Math.random() * inactiveItems.length)];
+  if (!item) return;
+  item.type = Math.random() > 0.5 ? 'fish' : 'milk';
+  item.value = item.type === 'fish' ? 100 : 150;
+  item.x = 50 + Math.random() * (canvas.width - 100);
+  item.y = 70 + Math.random() * (canvas.height - 120);
+  item.active = true;
 }
 
 function drawMap() {
@@ -47,6 +125,34 @@ function drawMap() {
   context.font = '10px monospace';
   context.fillText('OPEN TERRAIN', 28, 38);
   context.fillText('NO WALLS / NO LIMITS', canvas.width - 158, canvas.height - 25);
+  collectibles.filter((item) => item.active).forEach(drawCollectible);
+  if (pickupMessage) {
+    context.fillStyle = '#171717';
+    context.font = '700 14px monospace';
+    context.fillText(pickupMessage, canvas.width / 2 - 48, 38);
+    pickupMessage = '';
+  }
+}
+
+function drawCollectible(item) {
+  context.save();
+  context.translate(item.x, item.y);
+  context.fillStyle = item.type === 'fish' ? '#171717' : '#f5f2e9';
+  context.strokeStyle = '#171717';
+  context.lineWidth = 3;
+  if (item.type === 'fish') {
+    context.beginPath();
+    context.ellipse(0, 0, 15, 9, 0, 0, Math.PI * 2);
+    context.fill();
+    context.beginPath(); context.moveTo(-13, 0); context.lineTo(-26, -10); context.lineTo(-26, 10); context.closePath(); context.fill();
+    context.fillStyle = '#d7ed47'; context.fillRect(6, -3, 3, 3);
+  } else {
+    context.fillRect(-12, -13, 24, 25);
+    context.strokeRect(-12, -13, 24, 25);
+    context.fillStyle = '#d7ed47'; context.fillRect(-9, -18, 18, 5);
+    context.fillStyle = '#171717'; context.fillRect(-5, -4, 10, 3);
+  }
+  context.restore();
 }
 
 function drawCat() {
