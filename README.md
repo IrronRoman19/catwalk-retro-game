@@ -22,7 +22,7 @@ Collect the occasional items to increase the score:
 
 The game also includes synthesized retro sound effects: footsteps play while the cat walks, and each collectible has its own pickup chime. Sound starts after the first arrow-key press because browsers block audio before user interaction.
 
-Fish and milk spawn in random waves every 10 seconds. Each item remains on the map for 20 seconds unless the cat collects it first.
+One fish and one milk spawn every 10 seconds. Spawned items stay on the map until the cat collects them.
 
 Press **Esc** or the **Pause** button to open the pause menu. The pause menu freezes movement, animation, item timers, and score activity; choose **Resume Game** or press **Esc** again to continue.
 
