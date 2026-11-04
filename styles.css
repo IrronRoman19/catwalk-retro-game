@@ -33,7 +33,7 @@ body::before {
 .topbar, .screen-header, .screen-footer, .controls { display: flex; align-items: center; justify-content: space-between; }
 .topbar { margin-bottom: 18px; font-size: 11px; }
 .brand-mark { display: flex; align-items: center; gap: 10px; font: 700 20px 'Space Grotesk', sans-serif; letter-spacing: .12em; }
-.brand-pixel { width: 14px; height: 14px; background: var(--acid); box-shadow: 5px -5px 0 var(--chalk), 10px 0 0 var(--acid); }
+.brand-pixel { position: relative; width: 21px; height: 19px; background: radial-gradient(circle at 34% 55%, var(--ink) 0 2px, transparent 2.5px), radial-gradient(circle at 66% 55%, var(--ink) 0 2px, transparent 2.5px), var(--acid); clip-path: polygon(0 25%, 18% 0, 35% 17%, 65% 17%, 82% 0, 100% 25%, 93% 100%, 7% 100%); }
 .status-line { color: var(--muted); }
 .status-dot { display: inline-block; width: 7px; height: 7px; margin-right: 7px; border-radius: 50%; background: var(--acid); box-shadow: 0 0 12px var(--acid); }
 .divider { margin: 0 10px; color: var(--acid); }
