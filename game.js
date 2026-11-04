@@ -3,31 +3,47 @@ const context = canvas.getContext('2d');
 const positionReadout = document.querySelector('#position-readout');
 const scoreReadout = document.querySelector('#score-readout');
 const motionReadout = document.querySelector('#motion-readout');
+const pauseButton = document.querySelector('#pause-button');
+const pauseMenu = document.querySelector('#pause-menu');
+const resumeButton = document.querySelector('#resume-button');
 
 const keys = new Set();
 const cat = { x: canvas.width / 2, y: canvas.height / 2, speed: 235, direction: 'down', walking: false, frame: 0 };
-const collectibles = [
-  { type: 'fish', x: 180, y: 145, value: 100, active: true },
-  { type: 'milk', x: 760, y: 420, value: 150, active: true },
-  { type: 'fish', x: 610, y: 160, value: 100, active: true }
-];
+const collectibles = [];
 let score = 0;
-let respawnTimer = 0;
-let respawnsPending = 0;
+let spawnTimer = 10;
 let pickupMessage = '';
 let audioContext;
 let stepTimer = 0;
+let isPaused = false;
 let lastTime = performance.now();
 
 window.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape') {
+    event.preventDefault();
+    togglePause();
+    return;
+  }
   if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(event.key)) {
     event.preventDefault();
+    if (isPaused) return;
     startAudio();
     keys.add(event.key);
     canvas.focus();
   }
 });
 window.addEventListener('keyup', (event) => keys.delete(event.key));
+pauseButton.addEventListener('click', togglePause);
+resumeButton.addEventListener('click', togglePause);
+
+function togglePause() {
+  isPaused = !isPaused;
+  keys.clear();
+  pauseMenu.hidden = !isPaused;
+  pauseButton.textContent = isPaused ? 'PLAY' : 'PAUSE';
+  motionReadout.textContent = isPaused ? 'PAUSED // PRESS ESC TO RESUME' : 'STANDING BY';
+  if (!isPaused) lastTime = performance.now();
+}
 
 function startAudio() {
   if (!audioContext) audioContext = new AudioContext();
@@ -75,18 +91,23 @@ function update(delta) {
       stepTimer = 0.22;
     }
   } else stepTimer = 0;
+  updateCollectibles(delta);
   collectItems();
-  if (respawnTimer > 0) {
-    respawnTimer -= delta;
-    if (respawnTimer <= 0) {
-      spawnItem();
-      respawnsPending -= 1;
-      if (respawnsPending > 0) respawnTimer = 1.5 + Math.random() * 2.5;
-    }
-  }
   positionReadout.textContent = `X ${String(Math.round(cat.x)).padStart(4, '0')} / Y ${String(Math.round(cat.y)).padStart(4, '0')}`;
   scoreReadout.textContent = `SCORE ${String(score).padStart(4, '0')}`;
   motionReadout.textContent = cat.walking ? `WALKING // FACING ${cat.direction.toUpperCase()}` : 'STANDING BY';
+}
+
+function updateCollectibles(delta) {
+  spawnTimer -= delta;
+  if (spawnTimer <= 0) {
+    spawnWave();
+    spawnTimer = 10;
+  }
+  collectibles.forEach((item) => {
+    item.timeLeft -= delta;
+    if (item.timeLeft <= 0) item.active = false;
+  });
 }
 
 function collectItems() {
@@ -96,20 +117,23 @@ function collectItems() {
     score += item.value;
     pickupMessage = `${item.type.toUpperCase()} +${item.value}`;
     playPickupSound(item.type);
-    respawnsPending += 1;
-    if (respawnTimer <= 0) respawnTimer = 1.5 + Math.random() * 2.5;
+    item.active = false;
   });
 }
 
-function spawnItem() {
-  const inactiveItems = collectibles.filter((item) => !item.active);
-  const item = inactiveItems[Math.floor(Math.random() * inactiveItems.length)];
-  if (!item) return;
-  item.type = Math.random() > 0.5 ? 'fish' : 'milk';
-  item.value = item.type === 'fish' ? 100 : 150;
-  item.x = 50 + Math.random() * (canvas.width - 100);
-  item.y = 70 + Math.random() * (canvas.height - 120);
-  item.active = true;
+function spawnWave() {
+  const waveSize = 1 + Math.floor(Math.random() * 2);
+  for (let index = 0; index < waveSize; index += 1) {
+    const type = Math.random() > 0.5 ? 'fish' : 'milk';
+    collectibles.push({
+      type,
+      x: 50 + Math.random() * (canvas.width - 100),
+      y: 70 + Math.random() * (canvas.height - 120),
+      value: type === 'fish' ? 100 : 150,
+      active: true,
+      timeLeft: 20
+    });
+  }
 }
 
 function drawMap() {
@@ -179,7 +203,13 @@ function drawCat() {
 }
 
 function render() { drawMap(); drawCat(); }
-function loop(now) { const delta = Math.min((now - lastTime) / 1000, 0.05); lastTime = now; update(delta); render(); requestAnimationFrame(loop); }
+function loop(now) {
+  const delta = Math.min((now - lastTime) / 1000, 0.05);
+  lastTime = now;
+  if (!isPaused) update(delta);
+  render();
+  requestAnimationFrame(loop);
+}
 
 render();
 requestAnimationFrame(loop);

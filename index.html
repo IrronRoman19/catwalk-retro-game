@@ -17,9 +17,20 @@
     <section class="game-frame" aria-label="Catwalk arcade game">
       <div class="screen-header">
         <span>SECTOR 01: THE VOID</span>
-        <span><span id="score-readout">SCORE 0000</span><span class="hud-divider">//</span><span id="position-readout">X 0000 / Y 0000</span></span>
+        <span class="hud-stats"><span id="score-readout">SCORE 0000</span><span class="hud-divider">//</span><span id="position-readout">X 0000 / Y 0000</span><button id="pause-button" class="pause-button" type="button" aria-label="Pause game">PAUSE</button></span>
       </div>
-      <canvas id="game-canvas" width="960" height="600" tabindex="0" aria-label="Playable cat map"></canvas>
+      <div class="canvas-wrap">
+        <canvas id="game-canvas" width="960" height="600" tabindex="0" aria-label="Playable cat map"></canvas>
+        <div id="pause-menu" class="pause-menu" hidden>
+          <div class="pause-panel">
+            <span class="eyebrow">CATWALK // SYSTEM</span>
+            <h1>GAME PAUSED</h1>
+            <p>THE CAT IS TAKING A BREATHER.</p>
+            <button id="resume-button" class="resume-button" type="button">RESUME GAME</button>
+            <span class="pause-hint">PRESS ESC TO RETURN</span>
+          </div>
+        </div>
+      </div>
       <div class="screen-footer">
         <span id="motion-readout">STANDING BY</span>
         <span>ARROW KEYS TO MOVE</span>
