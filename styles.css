@@ -44,9 +44,9 @@ body::before {
 #motion-readout { color: var(--acid); }
 .hud-divider { margin: 0 10px; color: var(--acid); }
 .hud-stats { display: flex; align-items: center; }
-.pause-button, .resume-button { border: 1px solid var(--acid); color: var(--acid); background: transparent; font: 500 10px 'DM Mono', monospace; letter-spacing: .08em; cursor: pointer; }
+.pause-button, .resume-button, .pause-mute-button { border: 1px solid var(--acid); color: var(--acid); background: transparent; font: 500 10px 'DM Mono', monospace; letter-spacing: .08em; cursor: pointer; }
 .pause-button { margin-left: 14px; padding: 4px 7px; }
-.pause-button:hover, .resume-button:hover { color: var(--ink); background: var(--acid); }
+.pause-button:hover, .resume-button:hover, .pause-mute-button:hover { color: var(--ink); background: var(--acid); }
 .canvas-wrap { position: relative; }
 canvas { display: block; width: 100%; height: auto; max-height: 68vh; aspect-ratio: 8 / 5; border: 1px solid #515149; outline: none; background: var(--paper); image-rendering: pixelated; }
 canvas:focus { border-color: var(--acid); }
@@ -56,6 +56,7 @@ canvas:focus { border-color: var(--acid); }
 .pause-panel h1 { margin: 12px 0 8px; color: var(--acid); font: 700 clamp(24px, 5vw, 42px) 'Space Grotesk', sans-serif; letter-spacing: .02em; }
 .pause-panel p { margin: 0 0 24px; color: var(--muted); font-size: 10px; }
 .resume-button { padding: 11px 16px; }
+.pause-mute-button { display: block; margin: 12px auto 0; padding: 8px 12px; }
 .pause-hint { display: block; margin-top: 20px; color: var(--muted); font-size: 9px; }
 
 .controls { gap: 30px; padding-top: 25px; }
