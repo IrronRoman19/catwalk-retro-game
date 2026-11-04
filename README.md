@@ -15,6 +15,13 @@ Use the arrow keys to move:
 
 The cat can explore the entire blank map and is kept inside its visible boundaries.
 
+Collect the occasional items to increase the score:
+
+- **Fish**: +100 points
+- **Milk**: +150 points
+
+The game also includes synthesized retro sound effects: footsteps play while the cat walks, and each collectible has its own pickup chime. Sound starts after the first arrow-key press because browsers block audio before user interaction.
+
 ## Files
 
 - `index.html` - game layout and interface
