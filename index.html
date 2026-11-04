@@ -17,7 +17,7 @@
     <section class="game-frame" aria-label="Catwalk arcade game">
       <div class="screen-header">
         <span>SECTOR 01: THE VOID</span>
-        <span class="hud-stats"><span id="score-readout">SCORE 0000</span><span class="hud-divider">//</span><span id="position-readout">X 0000 / Y 0000</span><button id="pause-button" class="pause-button" type="button" aria-label="Pause game">PAUSE</button></span>
+        <span class="hud-stats"><span id="score-readout">SCORE 0000</span><span class="hud-divider">//</span><span id="position-readout">X 0000 / Y 0000</span><button id="mute-button" class="pause-button" type="button" aria-label="Mute game audio">MUTE AUDIO</button><button id="pause-button" class="pause-button" type="button" aria-label="Pause game">PAUSE</button></span>
       </div>
       <div class="canvas-wrap">
         <canvas id="game-canvas" width="960" height="600" tabindex="0" aria-label="Playable cat map"></canvas>
@@ -27,6 +27,7 @@
             <h1>GAME PAUSED</h1>
             <p>THE CAT IS TAKING A BREATHER.</p>
             <button id="resume-button" class="resume-button" type="button">RESUME GAME</button>
+            <button id="pause-mute-button" class="pause-mute-button" type="button" aria-label="Mute game audio">MUTE AUDIO</button>
             <span class="pause-hint">PRESS ESC TO RETURN</span>
           </div>
         </div>

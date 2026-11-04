@@ -6,16 +6,19 @@ const motionReadout = document.querySelector('#motion-readout');
 const pauseButton = document.querySelector('#pause-button');
 const pauseMenu = document.querySelector('#pause-menu');
 const resumeButton = document.querySelector('#resume-button');
+const muteButton = document.querySelector('#mute-button');
+const pauseMuteButton = document.querySelector('#pause-mute-button');
 
 const keys = new Set();
 const cat = { x: canvas.width / 2, y: canvas.height / 2, speed: 235, direction: 'down', walking: false, frame: 0 };
 const collectibles = [];
 let score = 0;
-let spawnTimer = 10;
+let spawnTimer = 3;
 let pickupMessage = '';
 let audioContext;
 let stepTimer = 0;
 let isPaused = false;
+let isMuted = false;
 let lastTime = performance.now();
 
 window.addEventListener('keydown', (event) => {
@@ -35,6 +38,8 @@ window.addEventListener('keydown', (event) => {
 window.addEventListener('keyup', (event) => keys.delete(event.key));
 pauseButton.addEventListener('click', togglePause);
 resumeButton.addEventListener('click', togglePause);
+muteButton.addEventListener('click', toggleMute);
+pauseMuteButton.addEventListener('click', toggleMute);
 
 function togglePause() {
   isPaused = !isPaused;
@@ -50,8 +55,18 @@ function startAudio() {
   if (audioContext.state === 'suspended') audioContext.resume();
 }
 
+function toggleMute() {
+  if (!isMuted) startAudio();
+  isMuted = !isMuted;
+  const label = isMuted ? 'UNMUTE AUDIO' : 'MUTE AUDIO';
+  muteButton.textContent = label;
+  pauseMuteButton.textContent = label;
+  muteButton.setAttribute('aria-label', isMuted ? 'Unmute game audio' : 'Mute game audio');
+  pauseMuteButton.setAttribute('aria-label', isMuted ? 'Unmute game audio' : 'Mute game audio');
+}
+
 function playTone(frequency, duration, type = 'square', volume = 0.035, delay = 0) {
-  if (!audioContext) return;
+  if (!audioContext || isMuted) return;
   const start = audioContext.currentTime + delay;
   const oscillator = audioContext.createOscillator();
   const gain = audioContext.createGain();
@@ -102,7 +117,7 @@ function updateCollectibles(delta) {
   spawnTimer -= delta;
   if (spawnTimer <= 0) {
     spawnCollectibles();
-    spawnTimer = 10;
+    spawnTimer = 3;
   }
 }
 
