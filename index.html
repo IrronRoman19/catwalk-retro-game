@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CATWALK // Arcade</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="arcade-shell">
+    <header class="topbar">
+      <div class="brand-mark"><span class="brand-pixel"></span> CATWALK</div>
+      <div class="status-line"><span class="status-dot"></span> PLAYER 01 <span class="divider">//</span> FREE ROAM</div>
+    </header>
+
+    <section class="game-frame" aria-label="Catwalk arcade game">
+      <div class="screen-header">
+        <span>SECTOR 01: THE VOID</span>
+        <span id="position-readout">X 0000 / Y 0000</span>
+      </div>
+      <canvas id="game-canvas" width="960" height="600" tabindex="0" aria-label="Playable cat map"></canvas>
+      <div class="screen-footer">
+        <span id="motion-readout">STANDING BY</span>
+        <span>ARROW KEYS TO MOVE</span>
+      </div>
+    </section>
+
+    <footer class="controls">
+      <div class="control-copy">
+        <span class="eyebrow">MISSION</span>
+        <strong>WALK THE WHOLE MAP.</strong>
+        <span>A blank city-sized canvas for one very determined cat.</span>
+      </div>
+      <div class="d-pad" aria-label="Arrow key controls">
+        <span class="key up">&#8593;</span>
+        <span class="key left">&#8592;</span>
+        <span class="key down">&#8595;</span>
+        <span class="key right">&#8594;</span>
+      </div>
+      <div class="legend"><span class="legend-cat"></span> B/W HERO<br><span class="legend-line"></span> OPEN TERRAIN</div>
+    </footer>
+  </main>
+  <script src="game.js"></script>
+</body>
+</html>
