@@ -28,3 +28,7 @@
 ### 4. Performance & Simplicity First
 - **Where it applies:** DOM manipulation and Canvas draw calls.
 - **Why it exists:** The game should load instantly and run smoothly without heavy external libraries or frameworks. Keep dependencies to absolute zero.
+
+### 5. Changing README.md after features changes
+- **Where it applies:** When changing features update README.md.
+- **Why it exists:** Keeps README.md updated if added, improved, changed or deleted features that contain features and instructions. 
