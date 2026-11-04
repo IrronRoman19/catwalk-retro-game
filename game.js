@@ -101,13 +101,9 @@ function update(delta) {
 function updateCollectibles(delta) {
   spawnTimer -= delta;
   if (spawnTimer <= 0) {
-    spawnWave();
+    spawnCollectibles();
     spawnTimer = 10;
   }
-  collectibles.forEach((item) => {
-    item.timeLeft -= delta;
-    if (item.timeLeft <= 0) item.active = false;
-  });
 }
 
 function collectItems() {
@@ -121,19 +117,16 @@ function collectItems() {
   });
 }
 
-function spawnWave() {
-  const waveSize = 1 + Math.floor(Math.random() * 2);
-  for (let index = 0; index < waveSize; index += 1) {
-    const type = Math.random() > 0.5 ? 'fish' : 'milk';
+function spawnCollectibles() {
+  ['fish', 'milk'].forEach((type) => {
     collectibles.push({
       type,
       x: 50 + Math.random() * (canvas.width - 100),
       y: 70 + Math.random() * (canvas.height - 120),
       value: type === 'fish' ? 100 : 150,
-      active: true,
-      timeLeft: 20
+      active: true
     });
-  }
+  });
 }
 
 function drawMap() {
