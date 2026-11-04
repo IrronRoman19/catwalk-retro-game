@@ -31,4 +31,4 @@
 
 ### 5. Changing README.md after features changes
 - **Where it applies:** When changing features update README.md.
-- **Why it exists:** Keeps README.md updated if added, improved, changed or deleted features that contain features and instructions. 
+- **Why it exists:** Keeps README.md updated if added, improved, changed or deleted features that contain features and instructions.
