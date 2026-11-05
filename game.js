@@ -2,6 +2,7 @@ const canvas = document.querySelector('#game-canvas');
 const context = canvas.getContext('2d');
 const positionReadout = document.querySelector('#position-readout');
 const scoreReadout = document.querySelector('#score-readout');
+const foodReadout = document.querySelector('#food-readout');
 const motionReadout = document.querySelector('#motion-readout');
 const pauseButton = document.querySelector('#pause-button');
 const pauseMenu = document.querySelector('#pause-menu');
@@ -13,6 +14,7 @@ const keys = new Set();
 const cat = { x: canvas.width / 2, y: canvas.height / 2, speed: 235, direction: 'down', walking: false, frame: 0 };
 const collectibles = [];
 let score = 0;
+let foodCount = 0;
 let spawnTimer = 3;
 let pickupMessage = '';
 let audioContext;
@@ -110,6 +112,7 @@ function update(delta) {
   collectItems();
   positionReadout.textContent = `X ${String(Math.round(cat.x)).padStart(4, '0')} / Y ${String(Math.round(cat.y)).padStart(4, '0')}`;
   scoreReadout.textContent = `SCORE ${String(score).padStart(4, '0')}`;
+  foodReadout.textContent = `FOOD ${String(foodCount).padStart(4, '0')}`;
   motionReadout.textContent = cat.walking ? `WALKING // FACING ${cat.direction.toUpperCase()}` : 'STANDING BY';
 }
 
@@ -126,6 +129,7 @@ function collectItems() {
     if (!item.active || Math.hypot(cat.x - item.x, cat.y - item.y) > 34) return;
     item.active = false;
     score += item.value;
+    foodCount += 1;
     pickupMessage = `${item.type.toUpperCase()} +${item.value}`;
     playPickupSound(item.type);
     item.active = false;
@@ -133,7 +137,7 @@ function collectItems() {
 }
 
 function spawnCollectibles() {
-  ['fish', 'milk'].forEach((type) => {
+  ['fish', 'water'].forEach((type) => {
     collectibles.push({
       type,
       x: 50 + Math.random() * (canvas.width - 100),
@@ -179,10 +183,15 @@ function drawCollectible(item) {
     context.beginPath(); context.moveTo(-13, 0); context.lineTo(-26, -10); context.lineTo(-26, 10); context.closePath(); context.fill();
     context.fillStyle = '#d7ed47'; context.fillRect(6, -3, 3, 3);
   } else {
-    context.fillRect(-12, -13, 24, 25);
-    context.strokeRect(-12, -13, 24, 25);
-    context.fillStyle = '#d7ed47'; context.fillRect(-9, -18, 18, 5);
-    context.fillStyle = '#171717'; context.fillRect(-5, -4, 10, 3);
+    context.beginPath();
+    context.moveTo(0, -17);
+    context.lineTo(12, 3);
+    context.arc(0, 3, 12, 0, Math.PI);
+    context.closePath();
+    context.fill();
+    context.stroke();
+    context.fillStyle = '#d7ed47';
+    context.fillRect(-4, -1, 4, 4);
   }
   context.restore();
 }
