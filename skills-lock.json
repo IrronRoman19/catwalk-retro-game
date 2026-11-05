@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "skills": {
+    "qodo-codebase-wisdom": {
+      "source": "qodo-ai/qodo-skills",
+      "sourceType": "github",
+      "skillPath": "skills/qodo-codebase-wisdom/SKILL.md",
+      "computedHash": "88b08b0af07a8dac71a005fd3682f2cd21bbd5713507a24f9fe31e9898b7d2b4"
+    },
+    "qodo-review": {
+      "source": "qodo-ai/qodo-skills",
+      "sourceType": "github",
+      "skillPath": "skills/qodo-review/SKILL.md",
+      "computedHash": "fb60abb05fb311a1b61249f229e74cbc6fb4776b9897ef322ae0721aa67267c0"
+    }
+  }
+}
