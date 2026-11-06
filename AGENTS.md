@@ -23,7 +23,7 @@
 
 ### 3. Clear Acceptance Criteria for AI Tickets
 - **Where it applies:** When prompting coding agents or creating new feature tasks.
-- **Why it exists:** Every new feature (like adding a score counter, obstacles, or player movement) must include explicit boundaries: expected input, rendering behavior, and what triggers a game-over state.
+- **Why it exists:** Make acceptance criteria measurable before implementation. Every new feature (like adding a score counter, obstacles, or player movement) must specify observable inputs, exact values or thresholds where relevant, expected rendering or state changes, and what triggers a game-over state so the result can be verified.
 
 ### 4. Performance & Simplicity First
 - **Where it applies:** DOM manipulation and Canvas draw calls.
