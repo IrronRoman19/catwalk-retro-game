@@ -24,7 +24,7 @@ const MAX_HEALTH = 100;
 const MUSHROOM_DAMAGE = 25;
 let score = 0;
 let foodCount = 0;
-let spawnTimer = 3;
+let spawnTimer = 2;
 let hazardTimer = 15;
 let health = MAX_HEALTH;
 let pickupMessage = '';
@@ -149,19 +149,27 @@ function updateHazards(delta) {
 
 function checkHazardCollisions() {
   hazards.forEach((hazard) => {
-    if (!hazard.active || Math.hypot(cat.x - hazard.x, cat.y - hazard.y) > 34) return;
+    if (isGameOver || !hazard.active || Math.hypot(cat.x - hazard.x, cat.y - hazard.y) > 34) return;
     hazard.active = false;
     health = Math.max(0, health - MUSHROOM_DAMAGE);
-    if (health === 0) showGameOver();
+    playTone(180, 0.12, 'sawtooth', 0.04);
+    if (health === 0) {
+      playTone(110, 0.2, 'square', 0.05);
+      playTone(82, 0.35, 'square', 0.05, 0.2);
+      showGameOver();
+    }
   });
 }
 
 function spawnMushroom() {
-  hazards.push({
-    x: 50 + Math.random() * (canvas.width - 100),
-    y: 70 + Math.random() * (canvas.height - 120),
-    active: true
-  });
+  const minimumDistance = 3 * 40;
+  let x;
+  let y;
+  do {
+    x = 50 + Math.random() * (canvas.width - 100);
+    y = 70 + Math.random() * (canvas.height - 120);
+  } while (Math.hypot(cat.x - x, cat.y - y) < minimumDistance);
+  hazards.push({ x, y, active: true });
 }
 
 function updateHealthReadout() {
@@ -187,11 +195,12 @@ function resetGame() {
   cat.frame = 0;
   collectibles.length = 0;
   hazards.length = 0;
+  spawnCollectibles();
   score = 0;
   foodCount = 0;
   pickupMessage = '';
   health = MAX_HEALTH;
-  spawnTimer = 3;
+  spawnTimer = 2;
   hazardTimer = 15;
   isPaused = false;
   isGameOver = false;
@@ -207,7 +216,7 @@ function updateCollectibles(delta) {
   spawnTimer -= delta;
   if (spawnTimer <= 0) {
     spawnCollectibles();
-    spawnTimer = 3;
+    spawnTimer = 2;
   }
 }
 
@@ -282,7 +291,7 @@ function drawMap() {
 function drawCollectible(item) {
   context.save();
   context.translate(item.x, item.y);
-  context.fillStyle = item.type === 'fish' ? '#171717' : '#f5f2e9';
+  context.fillStyle = item.type === 'fish' ? '#f5f2e9' : '#4aa3df';
   context.strokeStyle = '#171717';
   context.lineWidth = 3;
   if (item.type === 'fish') {
@@ -333,6 +342,7 @@ function loop(now) {
   const delta = Math.min((now - lastTime) / 1000, 0.05);
   lastTime = now;
   if (!isPaused) update(delta);
+  spawnCollectibles();
   render();
   updateHealthReadout();
   requestAnimationFrame(loop);

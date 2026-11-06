@@ -22,13 +22,15 @@ Collect the occasional items to increase the score:
 
 The game also includes synthesized retro sound effects: footsteps play while the cat walks, and each collectible has its own pickup chime. Sound starts after the first arrow-key press because browsers block audio before user interaction.
 
-One fish and one water item spawn every 3 seconds. Spawned items stay on the map until the cat collects them. The HUD displays how many food items the cat has received.
+One fish and one water item spawn immediately and every 2 seconds afterward. Fish are white and water is blue; spawned items stay on the map until the cat collects them. The HUD displays how many food items the cat has received.
 
 Use the **Mute Audio** button in the game HUD or pause menu to mute and unmute sound effects.
 
 Press **Esc** or the **Pause** button to open the pause menu. The pause menu freezes movement, animation, item timers, and score activity; choose **Resume Game** or press **Esc** again to continue.
 
 The cat starts with 100 HP. A poisoned mushroom appears every 15 seconds; touching one removes 25 HP and the mushroom disappears. When health reaches 0, the game ends and shows the final score and food count. Select **Play Again** to reset the entire session.
+
+Poisoned mushrooms spawn at least 3 map blocks (120 pixels) from the cat. Contact plays a damage sound, and reaching 0 HP plays a distinct game-over sound. These sounds follow the mute control.
 
 ## Files
 
