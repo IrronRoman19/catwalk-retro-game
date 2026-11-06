@@ -28,6 +28,8 @@ Use the **Mute Audio** button in the game HUD or pause menu to mute and unmute s
 
 Press **Esc** or the **Pause** button to open the pause menu. The pause menu freezes movement, animation, item timers, and score activity; choose **Resume Game** or press **Esc** again to continue.
 
+The cat starts with 100 HP. A poisoned mushroom appears every 15 seconds; touching one removes 25 HP and the mushroom disappears. When health reaches 0, the game ends and shows the final score and food count. Select **Play Again** to reset the entire session.
+
 ## Files
 
 - `index.html` - game layout and interface
