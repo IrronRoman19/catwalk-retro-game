@@ -233,18 +233,25 @@ function collectItems() {
 }
 
 function spawnInitialFood() {
-  spawnFood('fish');
-  spawnFood('water');
+  const fish = spawnFood('fish');
+  spawnFood('water', fish);
 }
 
-function spawnFood(type) {
+function spawnFood(type, avoidItem = null) {
+  let x;
+  let y;
+  do {
+    x = 50 + Math.random() * (canvas.width - 100);
+    y = 70 + Math.random() * (canvas.height - 120);
+  } while (avoidItem && Math.hypot(x - avoidItem.x, y - avoidItem.y) <= 68);
   collectibles.push({
     type,
-    x: 50 + Math.random() * (canvas.width - 100),
-    y: 70 + Math.random() * (canvas.height - 120),
+    x,
+    y,
     value: type === 'fish' ? 100 : 150,
     active: true
   });
+  return collectibles[collectibles.length - 1];
 }
 
 function drawMap() {
