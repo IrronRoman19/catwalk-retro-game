@@ -24,7 +24,7 @@ const MAX_HEALTH = 100;
 const MUSHROOM_DAMAGE = 25;
 let score = 0;
 let foodCount = 0;
-let spawnTimer = 2;
+let spawnTimer = 4;
 let hazardTimer = 15;
 let health = MAX_HEALTH;
 let pickupMessage = '';
@@ -195,12 +195,12 @@ function resetGame() {
   cat.frame = 0;
   collectibles.length = 0;
   hazards.length = 0;
-  spawnCollectibles();
+  spawnCollectibles(['fish', 'water']);
   score = 0;
   foodCount = 0;
   pickupMessage = '';
   health = MAX_HEALTH;
-  spawnTimer = 2;
+  spawnTimer = 4;
   hazardTimer = 15;
   isPaused = false;
   isGameOver = false;
@@ -215,8 +215,8 @@ function resetGame() {
 function updateCollectibles(delta) {
   spawnTimer -= delta;
   if (spawnTimer <= 0) {
-    spawnCollectibles();
-    spawnTimer = 2;
+    spawnCollectibles([Math.random() < 0.5 ? 'fish' : 'water']);
+    spawnTimer = 4;
   }
 }
 
@@ -232,8 +232,8 @@ function collectItems() {
   });
 }
 
-function spawnCollectibles() {
-  ['fish', 'water'].forEach((type) => {
+function spawnCollectibles(types) {
+  types.forEach((type) => {
     collectibles.push({
       type,
       x: 50 + Math.random() * (canvas.width - 100),
@@ -342,7 +342,7 @@ function loop(now) {
   const delta = Math.min((now - lastTime) / 1000, 0.05);
   lastTime = now;
   if (!isPaused) update(delta);
-  spawnCollectibles();
+  spawnCollectibles(['fish', 'water']);
   render();
   updateHealthReadout();
   requestAnimationFrame(loop);
