@@ -9,17 +9,29 @@ const pauseMenu = document.querySelector('#pause-menu');
 const resumeButton = document.querySelector('#resume-button');
 const muteButton = document.querySelector('#mute-button');
 const pauseMuteButton = document.querySelector('#pause-mute-button');
+const gameOverMenu = document.querySelector('#game-over-menu');
+const gameOverSummary = document.querySelector('#game-over-summary');
+const playAgainButton = document.querySelector('#play-again-button');
+const healthValue = document.querySelector('#health-value');
+const healthFill = document.querySelector('#health-fill');
+const healthBar = document.querySelector('.health-bar');
 
 const keys = new Set();
 const cat = { x: canvas.width / 2, y: canvas.height / 2, speed: 235, direction: 'down', walking: false, frame: 0 };
 const collectibles = [];
+const hazards = [];
+const MAX_HEALTH = 100;
+const MUSHROOM_DAMAGE = 25;
 let score = 0;
 let foodCount = 0;
 let spawnTimer = 3;
+let hazardTimer = 15;
+let health = MAX_HEALTH;
 let pickupMessage = '';
 let audioContext;
 let stepTimer = 0;
 let isPaused = false;
+let isGameOver = false;
 let isMuted = false;
 let lastTime = performance.now();
 const boardPalette = {
@@ -48,8 +60,10 @@ pauseButton.addEventListener('click', togglePause);
 resumeButton.addEventListener('click', togglePause);
 muteButton.addEventListener('click', toggleMute);
 pauseMuteButton.addEventListener('click', toggleMute);
+playAgainButton.addEventListener('click', resetGame);
 
 function togglePause() {
+  if (isGameOver) return;
   isPaused = !isPaused;
   keys.clear();
   pauseMenu.hidden = !isPaused;
@@ -115,11 +129,78 @@ function update(delta) {
     }
   } else stepTimer = 0;
   updateCollectibles(delta);
+  updateHazards(delta);
   collectItems();
+  checkHazardCollisions();
+  updateHealthReadout();
   positionReadout.textContent = `X ${String(Math.round(cat.x)).padStart(4, '0')} / Y ${String(Math.round(cat.y)).padStart(4, '0')}`;
   scoreReadout.textContent = `SCORE ${String(score).padStart(4, '0')}`;
   foodReadout.textContent = `FOOD ${String(foodCount).padStart(4, '0')}`;
-  motionReadout.textContent = cat.walking ? `WALKING // FACING ${cat.direction.toUpperCase()}` : 'STANDING BY';
+  if (!isGameOver) motionReadout.textContent = cat.walking ? `WALKING // FACING ${cat.direction.toUpperCase()}` : 'STANDING BY';
+}
+
+function updateHazards(delta) {
+  hazardTimer -= delta;
+  if (hazardTimer <= 0) {
+    spawnMushroom();
+    hazardTimer = 15;
+  }
+}
+
+function checkHazardCollisions() {
+  hazards.forEach((hazard) => {
+    if (!hazard.active || Math.hypot(cat.x - hazard.x, cat.y - hazard.y) > 34) return;
+    hazard.active = false;
+    health = Math.max(0, health - MUSHROOM_DAMAGE);
+    if (health === 0) showGameOver();
+  });
+}
+
+function spawnMushroom() {
+  hazards.push({
+    x: 50 + Math.random() * (canvas.width - 100),
+    y: 70 + Math.random() * (canvas.height - 120),
+    active: true
+  });
+}
+
+function updateHealthReadout() {
+  healthValue.textContent = String(health);
+  healthFill.style.width = `${health}%`;
+  healthFill.style.backgroundColor = health <= 25 ? '#f05a47' : 'var(--acid)';
+  healthBar.setAttribute('aria-valuenow', String(health));
+}
+
+function showGameOver() {
+  isGameOver = true;
+  keys.clear();
+  gameOverSummary.textContent = `SCORE ${String(score).padStart(4, '0')} // FOOD ${String(foodCount).padStart(4, '0')}`;
+  gameOverMenu.hidden = false;
+  motionReadout.textContent = 'GAME OVER // PLAY AGAIN TO RESTART';
+}
+
+function resetGame() {
+  cat.x = canvas.width / 2;
+  cat.y = canvas.height / 2;
+  cat.direction = 'down';
+  cat.walking = false;
+  cat.frame = 0;
+  collectibles.length = 0;
+  hazards.length = 0;
+  score = 0;
+  foodCount = 0;
+  pickupMessage = '';
+  health = MAX_HEALTH;
+  spawnTimer = 3;
+  hazardTimer = 15;
+  isPaused = false;
+  isGameOver = false;
+  pauseMenu.hidden = true;
+  gameOverMenu.hidden = true;
+  pauseButton.textContent = 'PAUSE';
+  motionReadout.textContent = 'STANDING BY';
+  updateHealthReadout();
+  lastTime = performance.now();
 }
 
 function updateCollectibles(delta) {
@@ -168,11 +249,33 @@ function drawMap() {
   context.fillText('OPEN TERRAIN', 28, 38);
   context.fillText('NO WALLS / NO LIMITS', canvas.width - 158, canvas.height - 25);
   collectibles.filter((item) => item.active).forEach(drawCollectible);
+  hazards.filter((hazard) => hazard.active).forEach(drawMushroom);
   if (pickupMessage) {
     context.fillStyle = '#171717';
     context.font = '700 14px monospace';
     context.fillText(pickupMessage, canvas.width / 2 - 48, 38);
     pickupMessage = '';
+  }
+
+  function drawMushroom(hazard) {
+    context.save();
+    context.translate(hazard.x, hazard.y);
+    context.fillStyle = '#f05a47';
+    context.strokeStyle = '#171717';
+    context.lineWidth = 3;
+    context.beginPath();
+    context.arc(0, 0, 15, Math.PI, 0);
+    context.lineTo(13, 14);
+    context.lineTo(-13, 14);
+    context.closePath();
+    context.fill();
+    context.stroke();
+    context.fillStyle = '#f5f2e9';
+    context.fillRect(-7, -7, 4, 4);
+    context.fillRect(4, -4, 4, 4);
+    context.fillStyle = '#f5f2e9';
+    context.fillRect(-8, 10, 16, 10);
+    context.restore();
   }
 }
 
@@ -231,6 +334,7 @@ function loop(now) {
   lastTime = now;
   if (!isPaused) update(delta);
   render();
+  updateHealthReadout();
   requestAnimationFrame(loop);
 }
 

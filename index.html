@@ -17,7 +17,7 @@
     <section class="game-frame" aria-label="Catwalk arcade game">
       <div class="screen-header">
         <span>SECTOR 01: THE VOID</span>
-        <span class="hud-stats"><span id="score-readout">SCORE 0000</span><span class="hud-divider">//</span><span id="food-readout">FOOD 0000</span><span class="hud-divider">//</span><span id="position-readout">X 0000 / Y 0000</span><button id="mute-button" class="pause-button" type="button" aria-label="Mute game audio">MUTE AUDIO</button><button id="pause-button" class="pause-button" type="button" aria-label="Pause game">PAUSE</button></span>
+        <span class="hud-stats"><span id="score-readout">SCORE 0000</span><span class="hud-divider">//</span><span id="food-readout">FOOD 0000</span><span class="hud-divider">//</span><span class="health-readout">HP <span id="health-value">100</span><span class="health-bar" role="progressbar" aria-label="Cat health" aria-valuemin="0" aria-valuemax="100" aria-valuenow="100"><span id="health-fill"></span></span></span><span class="hud-divider">//</span><span id="position-readout">X 0000 / Y 0000</span><button id="mute-button" class="pause-button" type="button" aria-label="Mute game audio">MUTE AUDIO</button><button id="pause-button" class="pause-button" type="button" aria-label="Pause game">PAUSE</button></span>
       </div>
       <div class="canvas-wrap">
         <canvas id="game-canvas" width="960" height="600" tabindex="0" aria-label="Playable cat map"></canvas>
@@ -29,6 +29,14 @@
             <button id="resume-button" class="resume-button" type="button">RESUME GAME</button>
             <button id="pause-mute-button" class="pause-mute-button" type="button" aria-label="Mute game audio">MUTE AUDIO</button>
             <span class="pause-hint">PRESS ESC TO RETURN</span>
+          </div>
+        </div>
+        <div id="game-over-menu" class="pause-menu" hidden>
+          <div class="pause-panel">
+            <span class="eyebrow">CATWALK // SYSTEM</span>
+            <h1>GAME OVER</h1>
+            <p id="game-over-summary">THE CAT NEEDS A REST.</p>
+            <button id="play-again-button" class="resume-button" type="button">PLAY AGAIN</button>
           </div>
         </div>
       </div>
