@@ -195,7 +195,7 @@ function resetGame() {
   cat.frame = 0;
   collectibles.length = 0;
   hazards.length = 0;
-  spawnCollectibles(['fish', 'water']);
+  spawnInitialFood();
   score = 0;
   foodCount = 0;
   pickupMessage = '';
@@ -215,7 +215,7 @@ function resetGame() {
 function updateCollectibles(delta) {
   spawnTimer -= delta;
   if (spawnTimer <= 0) {
-    spawnCollectibles([Math.random() < 0.5 ? 'fish' : 'water']);
+    spawnFood(Math.random() < 0.5 ? 'fish' : 'water');
     spawnTimer = 4;
   }
 }
@@ -232,15 +232,18 @@ function collectItems() {
   });
 }
 
-function spawnCollectibles(types) {
-  types.forEach((type) => {
-    collectibles.push({
-      type,
-      x: 50 + Math.random() * (canvas.width - 100),
-      y: 70 + Math.random() * (canvas.height - 120),
-      value: type === 'fish' ? 100 : 150,
-      active: true
-    });
+function spawnInitialFood() {
+  spawnFood('fish');
+  spawnFood('water');
+}
+
+function spawnFood(type) {
+  collectibles.push({
+    type,
+    x: 50 + Math.random() * (canvas.width - 100),
+    y: 70 + Math.random() * (canvas.height - 120),
+    value: type === 'fish' ? 100 : 150,
+    active: true
   });
 }
 
@@ -342,7 +345,7 @@ function loop(now) {
   const delta = Math.min((now - lastTime) / 1000, 0.05);
   lastTime = now;
   if (!isPaused) update(delta);
-  spawnCollectibles(['fish', 'water']);
+  spawnInitialFood();
   render();
   updateHealthReadout();
   requestAnimationFrame(loop);
