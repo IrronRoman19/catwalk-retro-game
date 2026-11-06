@@ -32,3 +32,28 @@
 ### 5. Changing README.md after features changes
 - **Where it applies:** When changing features update README.md.
 - **Why it exists:** Keeps README.md updated if added, improved, changed or deleted features that contain features and instructions.
+
+## 🤖 Automated Trigger & Workflow (`ready-for-agent`)
+
+When an Issue in the GitHub repository is labeled with **`ready-for-agent`**, the AI agent must autonomously execute the following pipeline:
+
+### 1. Task Intake
+- Read the assigned Issue title, description, and **Acceptance Criteria** (Definition of Done).
+- Do not start work if acceptance criteria are missing; instead, post a comment requesting clarification.
+
+### 2. Branch & Workspace Setup
+- Create a dedicated isolated Git branch for the task using the naming convention:
+  `feature/issue-[ISSUE_NUMBER]` or `fix/issue-[ISSUE_NUMBER]`.
+
+### 3. Implementation
+- Write clean, modular code following the project's existing structure for `catwalk-retro-game`.
+- Rely strictly on the instructions and project rules defined in this `AGENTS.md` file.
+
+### 4. Verification & Checks
+- Test the changes locally (verify that the game loop, rendering, or specific feature works without errors).
+- Ensure all acceptance criteria from the issue are fully satisfied.
+
+### 5. Pull Request (PR) Submission
+- Push the branch to the remote repository.
+- Open a Pull Request referencing the original issue (include `Closes #[ISSUE_NUMBER]` in the PR description).
+- Add the ticket link, acceptance criteria checklist, and a brief summary of implemented changes in the PR body so the Qodo reviewer has full context.
