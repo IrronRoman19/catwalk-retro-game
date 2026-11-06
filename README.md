@@ -22,7 +22,7 @@ Collect the occasional items to increase the score:
 
 The game also includes synthesized retro sound effects: footsteps play while the cat walks, and each collectible has its own pickup chime. Sound starts after the first arrow-key press because browsers block audio before user interaction.
 
-One randomly selected fish or water item spawns immediately at game start and after a restart. After that, exactly one randomly selected fish or water item spawns at one random location every 4 seconds; startup and restart never create multiple items at once. Fish are white and water is blue; spawned items stay on the map until the cat collects them. The HUD displays how many food items the cat has received.
+One fish and one water item spawn immediately at game start. After a restart, one randomly selected fish or water item spawns immediately. After that, exactly one randomly selected fish or water item spawns at one random location every 4 seconds; the animation loop does not add food. Fish are white and water is blue; spawned items stay on the map until the cat collects them. The HUD displays how many food items the cat has received.
 
 Use the **Mute Audio** button in the game HUD or pause menu to mute and unmute sound effects.
 

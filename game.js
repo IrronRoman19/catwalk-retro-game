@@ -341,11 +341,12 @@ function loop(now) {
   const delta = Math.min((now - lastTime) / 1000, 0.05);
   lastTime = now;
   if (!isPaused) update(delta);
-  spawnFood(Math.random() < 0.5 ? 'fish' : 'water');
   render();
   updateHealthReadout();
   requestAnimationFrame(loop);
 }
 
+spawnFood('fish');
+spawnFood('water');
 render();
 requestAnimationFrame(loop);
