@@ -22,6 +22,12 @@ let stepTimer = 0;
 let isPaused = false;
 let isMuted = false;
 let lastTime = performance.now();
+const boardPalette = {
+  background: '#183d2b',
+  grid: '#24543a',
+  border: '#6f9b72',
+  label: '#9fc89c'
+};
 
 window.addEventListener('keydown', (event) => {
   if (event.key === 'Escape') {
@@ -149,15 +155,15 @@ function spawnCollectibles() {
 }
 
 function drawMap() {
-  context.fillStyle = '#e8e5dc';
+  context.fillStyle = boardPalette.background;
   context.fillRect(0, 0, canvas.width, canvas.height);
-  context.strokeStyle = '#d1cec4';
+  context.strokeStyle = boardPalette.grid;
   context.lineWidth = 1;
   for (let x = 20; x < canvas.width; x += 40) { context.beginPath(); context.moveTo(x, 0); context.lineTo(x, canvas.height); context.stroke(); }
   for (let y = 20; y < canvas.height; y += 40) { context.beginPath(); context.moveTo(0, y); context.lineTo(canvas.width, y); context.stroke(); }
-  context.strokeStyle = '#b7b5ab';
+  context.strokeStyle = boardPalette.border;
   context.strokeRect(16, 16, canvas.width - 32, canvas.height - 32);
-  context.fillStyle = '#b7b5ab';
+  context.fillStyle = boardPalette.label;
   context.font = '10px monospace';
   context.fillText('OPEN TERRAIN', 28, 38);
   context.fillText('NO WALLS / NO LIMITS', canvas.width - 158, canvas.height - 25);

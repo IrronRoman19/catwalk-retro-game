@@ -36,4 +36,4 @@ Press **Esc** or the **Pause** button to open the pause menu. The pause menu fre
 
 ## Style
 
-The game uses a monochrome CRT-inspired palette, grid-based open terrain, pixelated rendering, and an arcade HUD. The cat is drawn directly on the HTML canvas, so the game does not need external image assets.
+The game uses a CRT-inspired dark-green board, grid-based open terrain, pixelated rendering, and a bold color-coded arcade HUD. The cat is drawn directly on the HTML canvas, so the game does not need external image assets.
