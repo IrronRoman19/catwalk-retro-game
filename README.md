@@ -28,7 +28,7 @@ Use the **Mute Audio** button in the game HUD or pause menu to mute and unmute s
 
 Press **Esc** or the **Pause** button to open the pause menu. The pause menu freezes movement, animation, item timers, and score activity; choose **Resume Game** or press **Esc** again to continue.
 
-The cat starts with 100 HP. A poisoned mushroom appears every 15 seconds; touching one removes 25 HP and the mushroom disappears. When health reaches 0, the game ends and shows the final score and food count. Select **Play Again** to reset the entire session.
+The cat starts with 100 HP. A poisoned mushroom appears every 20 seconds and disappears 15 seconds after spawning; touching one removes 25 HP and the mushroom disappears. When health reaches 0, the game ends and shows the final score and food count. Select **Play Again** to reset the entire session.
 
 Poisoned mushrooms spawn at least 3 map blocks (120 pixels) from the cat. Contact plays a damage sound, and reaching 0 HP plays a distinct game-over sound. These sounds follow the mute control.
 

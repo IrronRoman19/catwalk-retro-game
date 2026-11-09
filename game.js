@@ -22,10 +22,12 @@ const collectibles = [];
 const hazards = [];
 const MAX_HEALTH = 100;
 const MUSHROOM_DAMAGE = 25;
+const HAZARD_SPAWN_INTERVAL = 20;
+const MUSHROOM_LIFETIME = 15;
 let score = 0;
 let foodCount = 0;
 let spawnTimer = 4;
-let hazardTimer = 15;
+let hazardTimer = HAZARD_SPAWN_INTERVAL;
 let health = MAX_HEALTH;
 let pickupMessage = '';
 let audioContext;
@@ -143,8 +145,13 @@ function updateHazards(delta) {
   hazardTimer -= delta;
   if (hazardTimer <= 0) {
     spawnMushroom();
-    hazardTimer = 15;
+    hazardTimer = HAZARD_SPAWN_INTERVAL;
   }
+  hazards.forEach((hazard) => {
+    if (!hazard.active) return;
+    hazard.remaining -= delta;
+    if (hazard.remaining <= 0) hazard.active = false;
+  });
 }
 
 function checkHazardCollisions() {
@@ -169,7 +176,7 @@ function spawnMushroom() {
     x = 50 + Math.random() * (canvas.width - 100);
     y = 70 + Math.random() * (canvas.height - 120);
   } while (Math.hypot(cat.x - x, cat.y - y) < minimumDistance);
-  hazards.push({ x, y, active: true });
+  hazards.push({ x, y, active: true, remaining: MUSHROOM_LIFETIME });
 }
 
 function updateHealthReadout() {
@@ -201,7 +208,7 @@ function resetGame() {
   pickupMessage = '';
   health = MAX_HEALTH;
   spawnTimer = 4;
-  hazardTimer = 15;
+  hazardTimer = HAZARD_SPAWN_INTERVAL;
   isPaused = false;
   isGameOver = false;
   pauseMenu.hidden = true;
