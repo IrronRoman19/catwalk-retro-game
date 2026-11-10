@@ -12,6 +12,12 @@
       "sourceType": "github",
       "skillPath": "skills/qodo-review/SKILL.md",
       "computedHash": "fb60abb05fb311a1b61249f229e74cbc6fb4776b9897ef322ae0721aa67267c0"
+    },
+    "qodo-review-resolver": {
+      "source": "qodo-ai/qodo-skills",
+      "sourceType": "github",
+      "skillPath": "skills/qodo-review-resolver/SKILL.md",
+      "computedHash": "fac240f566638a2e6bcb937a9a1ce31cc7c5fb91435c42323ed95dfebc56f9b3"
     }
   }
 }
