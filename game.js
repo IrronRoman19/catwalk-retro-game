@@ -24,6 +24,7 @@ const MAX_HEALTH = 100;
 const MUSHROOM_DAMAGE = 25;
 const HAZARD_SPAWN_INTERVAL = 20;
 const MUSHROOM_LIFETIME = 15;
+const MUSHROOM_EXPIRY_GRACE = 0.2;
 let score = 0;
 let foodCount = 0;
 let spawnTimer = 4;
@@ -149,14 +150,23 @@ function updateHazards(delta) {
   }
   hazards.forEach((hazard) => {
     if (!hazard.active) return;
+    if (hazard.expired) {
+      hazard.graceRemaining -= delta;
+      if (hazard.graceRemaining <= 0) hazard.active = false;
+      return;
+    }
     hazard.remaining -= delta;
-    if (hazard.remaining <= 0) hazard.active = false;
+    if (hazard.remaining <= 0) {
+      hazard.remaining = 0;
+      hazard.expired = true;
+      hazard.graceRemaining = MUSHROOM_EXPIRY_GRACE;
+    }
   });
 }
 
 function checkHazardCollisions() {
   hazards.forEach((hazard) => {
-    if (isGameOver || !hazard.active || Math.hypot(cat.x - hazard.x, cat.y - hazard.y) > 34) return;
+    if (isGameOver || !hazard.active || hazard.expired || Math.hypot(cat.x - hazard.x, cat.y - hazard.y) > 34) return;
     hazard.active = false;
     health = Math.max(0, health - MUSHROOM_DAMAGE);
     playTone(180, 0.12, 'sawtooth', 0.04);
@@ -176,7 +186,14 @@ function spawnMushroom() {
     x = 50 + Math.random() * (canvas.width - 100);
     y = 70 + Math.random() * (canvas.height - 120);
   } while (Math.hypot(cat.x - x, cat.y - y) < minimumDistance);
-  hazards.push({ x, y, active: true, remaining: MUSHROOM_LIFETIME });
+  hazards.push({
+    x,
+    y,
+    active: true,
+    expired: false,
+    remaining: MUSHROOM_LIFETIME,
+    graceRemaining: 0
+  });
 }
 
 function updateHealthReadout() {
@@ -275,6 +292,20 @@ function drawMap() {
   function drawMushroom(hazard) {
     context.save();
     context.translate(hazard.x, hazard.y);
+    const timerProgress = Math.max(0, Math.min(1, hazard.remaining / MUSHROOM_LIFETIME));
+    const timerEnd = -Math.PI / 2 + timerProgress * Math.PI * 2;
+    context.fillStyle = '#171717';
+    context.beginPath();
+    context.arc(0, 0, 23, 0, Math.PI * 2);
+    context.fill();
+    if (timerProgress > 0) {
+      context.fillStyle = '#d7ed47';
+      context.beginPath();
+      context.moveTo(0, 0);
+      context.arc(0, 0, 21, -Math.PI / 2, timerEnd);
+      context.closePath();
+      context.fill();
+    }
     context.fillStyle = '#f05a47';
     context.strokeStyle = '#171717';
     context.lineWidth = 3;
