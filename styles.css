@@ -72,7 +72,9 @@ canvas:focus { border-color: var(--acid); }
 .control-copy strong { color: var(--chalk); font: 700 clamp(18px, 3vw, 29px) 'Space Grotesk', sans-serif; letter-spacing: .01em; }
 .eyebrow { color: var(--acid); font-size: 10px; }
 .d-pad { display: grid; grid-template: repeat(2, 42px) / repeat(3, 42px); gap: 5px; }
-.key { display: grid; place-items: center; border: 1px solid #65655d; color: var(--chalk); font-size: 20px; background: #292924; box-shadow: 2px 2px 0 #111; }
+.key { display: grid; place-items: center; width: 42px; height: 42px; padding: 0; border: 1px solid #65655d; color: var(--chalk); font: inherit; font-size: 20px; background: #292924; box-shadow: 2px 2px 0 #111; cursor: pointer; touch-action: none; }
+.key:hover, .key:focus-visible, .key:active { color: var(--ink); background: var(--acid); }
+.key:focus-visible { outline: 2px solid var(--chalk); outline-offset: 2px; }
 .key.up { grid-column: 2; }.key.left { grid-column: 1; grid-row: 2; }.key.down { grid-column: 2; grid-row: 2; }.key.right { grid-column: 3; grid-row: 2; }
 .legend { color: var(--muted); font-size: 10px; line-height: 2.4; text-align: right; }.legend-cat, .legend-line { display: inline-block; vertical-align: middle; width: 22px; height: 5px; margin-right: 8px; background: var(--chalk); }.legend-line { background: var(--muted); }
 
