@@ -57,3 +57,12 @@ When an Issue in the GitHub repository is labeled with **`ready-for-agent`**, th
 - Push the branch to the remote repository.
 - Open a Pull Request referencing the original issue (include `Closes #[ISSUE_NUMBER]` in the PR description).
 - Add the ticket link, acceptance criteria checklist, and a brief summary of implemented changes in the PR body so the Qodo reviewer has full context.
+
+## Qodo Review Quality Gate
+Before marking any coding task or PR review as complete:
+1. Run Qodo Reviewer (for uncommitted staged/unstaged changes) or Review Resolver (for PRs) with the task requirements and implementation decisions as context.
+2. Investigate each finding against the codebase and requirements.
+3. **Must Fix (Blocking):** Fix every valid **High** and **Medium** finding (across Bugs, Rule violations, and Requirement gaps). Re-run relevant tests/checks and re-run Qodo review after fixes in a loop until zero valid High/Medium issues remain.
+4. **Flag Only (Non-Blocking):** Leave **Low** severity findings (such as Low Rule violations or minor informational notes) unchanged in the code, but explicitly list and flag all of them in the final summary for human review.
+5. **Disagreements:** If a High or Medium finding is invalid/false positive, do not apply a blind fix—document the disagreement with code or requirement evidence.
+6. **Blocker Rule:** If a valid High/Medium issue cannot be resolved, checks fail, or the review loop stops making progress, report the task as **NOT DONE** and explain what human input is needed.
