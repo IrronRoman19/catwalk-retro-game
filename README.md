@@ -13,6 +13,8 @@ Use the arrow keys to move:
 - **Left**: move west
 - **Right**: move east
 
+On touch devices or with a mouse, press and hold the directional buttons below the game to move in the same four directions.
+
 The cat can explore the entire blank map and is kept inside its visible boundaries.
 
 Collect the occasional items to increase the score:

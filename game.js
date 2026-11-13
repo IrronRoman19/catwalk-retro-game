@@ -15,6 +15,7 @@ const playAgainButton = document.querySelector('#play-again-button');
 const healthValue = document.querySelector('#health-value');
 const healthFill = document.querySelector('#health-fill');
 const healthBar = document.querySelector('.health-bar');
+const directionButtons = document.querySelectorAll('[data-direction]');
 
 const keys = new Set();
 const cat = { x: canvas.width / 2, y: canvas.height / 2, speed: 235, direction: 'down', walking: false, frame: 0 };
@@ -59,11 +60,46 @@ window.addEventListener('keydown', (event) => {
   }
 });
 window.addEventListener('keyup', (event) => keys.delete(event.key));
+window.addEventListener('pointerup', () => releaseDirectionButtons());
+window.addEventListener('pointercancel', () => releaseDirectionButtons());
 pauseButton.addEventListener('click', togglePause);
 resumeButton.addEventListener('click', togglePause);
 muteButton.addEventListener('click', toggleMute);
 pauseMuteButton.addEventListener('click', toggleMute);
 playAgainButton.addEventListener('click', resetGame);
+
+directionButtons.forEach((button) => {
+  const direction = button.dataset.direction;
+  button.addEventListener('pointerdown', (event) => {
+    event.preventDefault();
+    button.setPointerCapture(event.pointerId);
+    pressDirection(direction);
+  });
+  button.addEventListener('pointerup', () => releaseDirection(direction));
+  button.addEventListener('lostpointercapture', () => releaseDirection(direction));
+  button.addEventListener('keydown', (event) => {
+    if (event.key !== 'Enter' && event.key !== ' ') return;
+    event.preventDefault();
+    pressDirection(direction);
+  });
+  button.addEventListener('keyup', (event) => {
+    if (event.key === 'Enter' || event.key === ' ') releaseDirection(direction);
+  });
+});
+
+function pressDirection(direction) {
+  if (isPaused || isGameOver || !direction) return;
+  startAudio();
+  keys.add(direction);
+}
+
+function releaseDirection(direction) {
+  if (direction) keys.delete(direction);
+}
+
+function releaseDirectionButtons() {
+  directionButtons.forEach((button) => releaseDirection(button.dataset.direction));
+}
 
 function togglePause() {
   if (isGameOver) return;
