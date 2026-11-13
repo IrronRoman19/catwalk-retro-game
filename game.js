@@ -17,7 +17,9 @@ const healthFill = document.querySelector('#health-fill');
 const healthBar = document.querySelector('.health-bar');
 const directionButtons = document.querySelectorAll('[data-direction]');
 
-const keys = new Set();
+const keyboardKeys = new Set();
+const pointerKeys = new Set();
+const buttonKeys = new Set();
 const cat = { x: canvas.width / 2, y: canvas.height / 2, speed: 235, direction: 'down', walking: false, frame: 0 };
 const collectibles = [];
 const hazards = [];
@@ -55,13 +57,14 @@ window.addEventListener('keydown', (event) => {
     event.preventDefault();
     if (isPaused) return;
     startAudio();
-    keys.add(event.key);
+    keyboardKeys.add(event.key);
     canvas.focus();
   }
 });
-window.addEventListener('keyup', (event) => keys.delete(event.key));
-window.addEventListener('pointerup', () => releaseDirectionButtons());
-window.addEventListener('pointercancel', () => releaseDirectionButtons());
+window.addEventListener('keyup', (event) => {
+  keyboardKeys.delete(event.key);
+  if (event.key === 'Enter' || event.key === ' ') buttonKeys.clear();
+});
 pauseButton.addEventListener('click', togglePause);
 resumeButton.addEventListener('click', togglePause);
 muteButton.addEventListener('click', toggleMute);
@@ -73,38 +76,46 @@ directionButtons.forEach((button) => {
   button.addEventListener('pointerdown', (event) => {
     event.preventDefault();
     button.setPointerCapture(event.pointerId);
-    pressDirection(direction);
+    pressPointerDirection(direction);
   });
-  button.addEventListener('pointerup', () => releaseDirection(direction));
-  button.addEventListener('lostpointercapture', () => releaseDirection(direction));
+  button.addEventListener('pointerup', () => releasePointerDirection(direction));
+  button.addEventListener('lostpointercapture', () => releasePointerDirection(direction));
   button.addEventListener('keydown', (event) => {
     if (event.key !== 'Enter' && event.key !== ' ') return;
     event.preventDefault();
-    pressDirection(direction);
+    pressButtonDirection(direction);
   });
   button.addEventListener('keyup', (event) => {
-    if (event.key === 'Enter' || event.key === ' ') releaseDirection(direction);
+    if (event.key === 'Enter' || event.key === ' ') releaseButtonDirection(direction);
   });
 });
 
-function pressDirection(direction) {
+function pressPointerDirection(direction) {
   if (isPaused || isGameOver || !direction) return;
   startAudio();
-  keys.add(direction);
+  pointerKeys.add(direction);
 }
 
-function releaseDirection(direction) {
-  if (direction) keys.delete(direction);
+function releasePointerDirection(direction) {
+  if (direction) pointerKeys.delete(direction);
 }
 
-function releaseDirectionButtons() {
-  directionButtons.forEach((button) => releaseDirection(button.dataset.direction));
+function pressButtonDirection(direction) {
+  if (isPaused || isGameOver || !direction) return;
+  startAudio();
+  buttonKeys.add(direction);
+}
+
+function releaseButtonDirection(direction) {
+  if (direction) buttonKeys.delete(direction);
 }
 
 function togglePause() {
   if (isGameOver) return;
   isPaused = !isPaused;
-  keys.clear();
+  keyboardKeys.clear();
+  pointerKeys.clear();
+  buttonKeys.clear();
   pauseMenu.hidden = !isPaused;
   pauseButton.textContent = isPaused ? 'PLAY' : 'PAUSE';
   motionReadout.textContent = isPaused ? 'PAUSED // PRESS ESC TO RESUME' : 'STANDING BY';
@@ -149,10 +160,10 @@ function playPickupSound(type) {
 function update(delta) {
   let horizontal = 0;
   let vertical = 0;
-  if (keys.has('ArrowLeft')) horizontal -= 1;
-  if (keys.has('ArrowRight')) horizontal += 1;
-  if (keys.has('ArrowUp')) vertical -= 1;
-  if (keys.has('ArrowDown')) vertical += 1;
+  if (keyboardKeys.has('ArrowLeft') || pointerKeys.has('ArrowLeft') || buttonKeys.has('ArrowLeft')) horizontal -= 1;
+  if (keyboardKeys.has('ArrowRight') || pointerKeys.has('ArrowRight') || buttonKeys.has('ArrowRight')) horizontal += 1;
+  if (keyboardKeys.has('ArrowUp') || pointerKeys.has('ArrowUp') || buttonKeys.has('ArrowUp')) vertical -= 1;
+  if (keyboardKeys.has('ArrowDown') || pointerKeys.has('ArrowDown') || buttonKeys.has('ArrowDown')) vertical += 1;
   cat.walking = horizontal !== 0 || vertical !== 0;
   if (horizontal !== 0 && vertical !== 0) { horizontal *= 0.707; vertical *= 0.707; }
   if (horizontal) cat.direction = horizontal < 0 ? 'left' : 'right';
@@ -241,7 +252,9 @@ function updateHealthReadout() {
 
 function showGameOver() {
   isGameOver = true;
-  keys.clear();
+  keyboardKeys.clear();
+  pointerKeys.clear();
+  buttonKeys.clear();
   gameOverSummary.textContent = `SCORE ${String(score).padStart(4, '0')} // FOOD ${String(foodCount).padStart(4, '0')}`;
   gameOverMenu.hidden = false;
   motionReadout.textContent = 'GAME OVER // PLAY AGAIN TO RESTART';
