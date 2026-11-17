@@ -17,7 +17,7 @@
     <section class="game-frame" aria-label="Catwalk arcade game">
       <div class="screen-header">
         <span>SECTOR 01: THE VOID</span>
-        <span class="hud-stats"><span id="score-readout">SCORE 0000</span><span class="hud-divider">//</span><span id="food-readout">FOOD 0000</span><span class="hud-divider">//</span><span class="health-readout">HP <span id="health-value">100</span><span class="health-bar" role="progressbar" aria-label="Cat health" aria-valuemin="0" aria-valuemax="100" aria-valuenow="100"><span id="health-fill"></span></span></span><span class="hud-divider">//</span><span id="position-readout">X 0000 / Y 0000</span><button id="mute-button" class="pause-button" type="button" aria-label="Mute game audio">MUTE AUDIO</button><button id="pause-button" class="pause-button" type="button" aria-label="Pause game">PAUSE</button></span>
+        <span class="hud-stats"><span id="score-readout">SCORE 0000</span><span class="hud-divider">//</span><span id="food-readout">FOOD 0000</span><span class="hud-divider">//</span><span class="health-readout">HP <span id="health-value">100</span><span class="health-bar" role="progressbar" aria-label="Cat health" aria-valuemin="0" aria-valuemax="100" aria-valuenow="100"><span id="health-fill"></span></span></span><span class="hud-divider">//</span><span class="rat-health-readout">RAT <span id="rat-health-value">--</span><span class="health-bar" role="progressbar" aria-label="Rat health" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="rat-health-fill"></span></span></span><span class="hud-divider">//</span><span id="position-readout">X 0000 / Y 0000</span><button id="attack-button" class="pause-button attack-button" type="button" aria-label="Attack the rat">ATTACK</button><button id="mute-button" class="pause-button" type="button" aria-label="Mute game audio">MUTE AUDIO</button><button id="pause-button" class="pause-button" type="button" aria-label="Pause game">PAUSE</button></span>
       </div>
       <div class="canvas-wrap">
         <canvas id="game-canvas" width="960" height="600" tabindex="0" aria-label="Playable cat map"></canvas>
@@ -42,7 +42,7 @@
       </div>
       <div class="screen-footer">
         <span id="motion-readout">STANDING BY</span>
-        <span>ARROW KEYS TO MOVE</span>
+        <span>ARROW KEYS TO MOVE // SPACE TO ATTACK</span>
       </div>
     </section>
 
