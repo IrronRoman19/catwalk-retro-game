@@ -1,0 +1,13 @@
+[pr_reviewer]
+extra_instructions = """
+Project context & architectural decisions (MUST RESPECT):
+- This is a 100% offline retro arcade game built with zero-dependency Vanilla JavaScript, HTML5 Canvas, and CSS.
+- Do NOT suggest external npm packages, bundlers, frameworks, CDNs, or network calls.
+- Keep feedback concise, actionable, and grouped by severity (High / Medium / Low).
+
+Specific bugs and edge cases to catch:
+- Game loop & Pause state: ensure timers, animations, and cooldowns freeze properly when the game is paused and do not jump on resume.
+- Input handling: check that keyboard and pointer/touch controls are isolated and release cleanly on window blur/focus loss without sticking.
+- Canvas & Collisions: verify entities stay within canvas bounds and expired/inactive hazards cannot deal damage.
+- Offline persistence: ensure localStorage reads/writes handle private browsing or quota errors gracefully without crashing the game loop.
+"""
