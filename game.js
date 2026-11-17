@@ -15,9 +15,6 @@ const playAgainButton = document.querySelector('#play-again-button');
 const healthValue = document.querySelector('#health-value');
 const healthFill = document.querySelector('#health-fill');
 const healthBar = document.querySelector('.health-bar');
-const ratHealthValue = document.querySelector('#rat-health-value');
-const ratHealthFill = document.querySelector('#rat-health-fill');
-const ratHealthBar = ratHealthFill.closest('.health-bar');
 const attackButton = document.querySelector('#attack-button');
 const directionButtons = document.querySelectorAll('[data-direction]');
 
@@ -209,7 +206,6 @@ function update(delta) {
   attackCooldown = Math.max(0, attackCooldown - delta);
   attackFlash = Math.max(0, attackFlash - delta);
   updateHealthReadout();
-  updateRatHealthReadout();
   positionReadout.textContent = `X ${String(Math.round(cat.x)).padStart(4, '0')} / Y ${String(Math.round(cat.y)).padStart(4, '0')}`;
   scoreReadout.textContent = `SCORE ${String(score).padStart(4, '0')}`;
   foodReadout.textContent = `FOOD ${String(foodCount).padStart(4, '0')}`;
@@ -261,7 +257,19 @@ function attack() {
   attackCooldown = 0.35;
   attackFlash = 0.15;
   playTone(260, 0.08, 'square', 0.04);
-  if (!rat || Math.hypot(cat.x - rat.x, cat.y - rat.y) > RAT_ATTACK_RANGE) return;
+  if (!rat) return;
+  const offsetX = rat.x - cat.x;
+  const offsetY = rat.y - cat.y;
+  const distance = Math.hypot(offsetX, offsetY);
+  if (distance === 0 || distance > RAT_ATTACK_RANGE) return;
+  const facingVector = {
+    up: { x: 0, y: -1 },
+    down: { x: 0, y: 1 },
+    left: { x: -1, y: 0 },
+    right: { x: 1, y: 0 }
+  }[cat.direction];
+  const alignment = (offsetX * facingVector.x + offsetY * facingVector.y) / distance;
+  if (alignment < 0.7) return;
   rat.health = Math.max(0, rat.health - 25);
   if (rat.health === 0) {
     rat = null;
@@ -340,13 +348,6 @@ function updateHealthReadout() {
   healthBar.setAttribute('aria-valuenow', String(health));
 }
 
-function updateRatHealthReadout() {
-  const currentHealth = rat ? rat.health : 0;
-  ratHealthValue.textContent = rat ? String(currentHealth) : '--';
-  ratHealthFill.style.width = `${currentHealth}%`;
-  ratHealthBar.setAttribute('aria-valuenow', String(currentHealth));
-}
-
 function showGameOver() {
   isGameOver = true;
   keyboardKeys.clear();
@@ -384,7 +385,6 @@ function resetGame() {
   pauseButton.textContent = 'PAUSE';
   motionReadout.textContent = 'STANDING BY';
   updateHealthReadout();
-  updateRatHealthReadout();
   lastTime = performance.now();
 }
 
@@ -439,7 +439,14 @@ function drawMap() {
     context.strokeStyle = '#d7ed47';
     context.lineWidth = 4;
     context.beginPath();
-    context.arc(cat.x, cat.y, RAT_ATTACK_RANGE, 0, Math.PI * 2);
+    const flashVectors = {
+      up: { x: 0, y: -RAT_ATTACK_RANGE },
+      down: { x: 0, y: RAT_ATTACK_RANGE },
+      left: { x: -RAT_ATTACK_RANGE, y: 0 },
+      right: { x: RAT_ATTACK_RANGE, y: 0 }
+    }[cat.direction];
+    context.moveTo(cat.x, cat.y);
+    context.lineTo(cat.x + flashVectors.x, cat.y + flashVectors.y);
     context.stroke();
   }
   if (pickupMessage) {
@@ -539,6 +546,68 @@ function drawCat() {
   const facingLeft = cat.direction === 'left';
   context.save();
   context.translate(cat.x, cat.y);
+
+  if (cat.direction === 'up') {
+    context.fillStyle = '#aaa79e';
+    context.fillRect(-18, 30, 36, 3);
+    context.fillStyle = '#171717';
+    context.beginPath();
+    context.ellipse(0, 5, 18, 24, 0, 0, Math.PI * 2);
+    context.fill();
+    context.fillStyle = '#f5f2e9';
+    context.beginPath();
+    context.ellipse(0, 8, 11, 17, 0, 0, Math.PI * 2);
+    context.fill();
+    context.fillStyle = '#171717';
+    context.beginPath();
+    context.moveTo(-14, -13);
+    context.lineTo(-13, -31);
+    context.lineTo(-3, -23);
+    context.lineTo(3, -31);
+    context.lineTo(15, -13);
+    context.closePath();
+    context.fill();
+    context.fillRect(-11, 25 + step, 6, 12 - step);
+    context.fillRect(6, 25 + (4 - step), 6, 12 - (4 - step));
+    context.fillRect(-4, -25, 8, 5);
+    context.fillRect(13, 5 + step, 5, 14);
+    context.restore();
+    return;
+  }
+
+  if (cat.direction === 'down') {
+    context.fillStyle = '#aaa79e';
+    context.fillRect(-18, 30, 36, 3);
+    context.fillStyle = '#171717';
+    context.beginPath();
+    context.ellipse(0, 5, 18, 24, 0, 0, Math.PI * 2);
+    context.fill();
+    context.fillStyle = '#f5f2e9';
+    context.beginPath();
+    context.ellipse(0, 8, 11, 17, 0, 0, Math.PI * 2);
+    context.fill();
+    context.fillStyle = '#171717';
+    context.beginPath();
+    context.moveTo(-14, -12);
+    context.lineTo(-13, -31);
+    context.lineTo(-3, -23);
+    context.lineTo(3, -31);
+    context.lineTo(15, -12);
+    context.closePath();
+    context.fill();
+    context.fillStyle = '#f5f2e9';
+    context.fillRect(-7, -21, 4, 4);
+    context.fillRect(5, -21, 4, 4);
+    context.fillStyle = '#171717';
+    context.fillRect(-2, -10, 4, 3);
+    context.fillRect(-11, 25 + step, 6, 12 - step);
+    context.fillRect(6, 25 + (4 - step), 6, 12 - (4 - step));
+    context.fillRect(-27, 5 + (4 - step), 15, 5);
+    context.fillRect(-29, 4 + step, 5, 14);
+    context.restore();
+    return;
+  }
+
   if (facingLeft) context.scale(-1, 1);
   context.fillStyle = '#aaa79e';
   context.fillRect(-18, 30, 36, 3);
@@ -569,6 +638,5 @@ function loop(now) {
 
 spawnFood('fish');
 spawnFood('water');
-updateRatHealthReadout();
 render();
 requestAnimationFrame(loop);

@@ -34,7 +34,7 @@ The cat starts with 100 HP. A poisoned mushroom appears every 20 seconds and dis
 
 Poisoned mushrooms spawn at least 3 map blocks (120 pixels) from the cat. Contact plays a damage sound, and reaching 0 HP plays a distinct game-over sound. These sounds follow the mute control.
 
-One rat spawns after a random 30-45 second interval at least 200 pixels from the cat. The rat wanders to random locations across the map and displays a 100 HP health bar. If the rat touches the cat, it deals damage; press **Space** or **ATTACK** to damage a nearby rat. A rat disappears when its health reaches 0.
+One rat spawns after a random 30-45 second interval at least 200 pixels from the cat. The rat wanders to random locations across the map and displays its 100 HP health bar beside its body in the canvas, rather than in the interface. If the rat touches the cat, it deals damage; press **Space** or **ATTACK** to damage a nearby rat only when the cat is facing it. The cat has separate up, down, left, and right poses and walking animations. A rat disappears when its health reaches 0.
 
 ## Files
 
