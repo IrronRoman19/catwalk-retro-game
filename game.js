@@ -15,6 +15,10 @@ const playAgainButton = document.querySelector('#play-again-button');
 const healthValue = document.querySelector('#health-value');
 const healthFill = document.querySelector('#health-fill');
 const healthBar = document.querySelector('.health-bar');
+const ratHealthValue = document.querySelector('#rat-health-value');
+const ratHealthFill = document.querySelector('#rat-health-fill');
+const ratHealthBar = ratHealthFill.closest('.health-bar');
+const attackButton = document.querySelector('#attack-button');
 const directionButtons = document.querySelectorAll('[data-direction]');
 
 const keyboardKeys = new Set();
@@ -23,8 +27,15 @@ const buttonKeys = new Set();
 const cat = { x: canvas.width / 2, y: canvas.height / 2, speed: 235, direction: 'down', walking: false, frame: 0 };
 const collectibles = [];
 const hazards = [];
+let rat = null;
 const MAX_HEALTH = 100;
 const MUSHROOM_DAMAGE = 25;
+const RAT_MAX_HEALTH = 100;
+const RAT_DAMAGE = 15;
+const RAT_ATTACK_RANGE = 76;
+const RAT_MINIMUM_SPAWN_DISTANCE = 200;
+const RAT_SPEED = 72;
+const RAT_CONTACT_COOLDOWN = 1;
 const HAZARD_SPAWN_INTERVAL = 20;
 const MUSHROOM_LIFETIME = 15;
 const MUSHROOM_EXPIRY_GRACE = 0.2;
@@ -32,6 +43,10 @@ let score = 0;
 let foodCount = 0;
 let spawnTimer = 4;
 let hazardTimer = HAZARD_SPAWN_INTERVAL;
+let ratSpawnTimer = getRatSpawnDelay();
+let ratContactCooldown = 0;
+let attackCooldown = 0;
+let attackFlash = 0;
 let health = MAX_HEALTH;
 let pickupMessage = '';
 let audioContext;
@@ -60,6 +75,11 @@ window.addEventListener('keydown', (event) => {
     keyboardKeys.add(event.key);
     canvas.focus();
   }
+  if (event.key === ' ' || event.key === 'Spacebar') {
+    if (event.target instanceof HTMLButtonElement) return;
+    event.preventDefault();
+    attack();
+  }
 });
 window.addEventListener('keyup', (event) => {
   keyboardKeys.delete(event.key);
@@ -70,6 +90,7 @@ resumeButton.addEventListener('click', togglePause);
 muteButton.addEventListener('click', toggleMute);
 pauseMuteButton.addEventListener('click', toggleMute);
 playAgainButton.addEventListener('click', resetGame);
+attackButton.addEventListener('click', attack);
 
 directionButtons.forEach((button) => {
   const direction = button.dataset.direction;
@@ -158,6 +179,7 @@ function playPickupSound(type) {
 }
 
 function update(delta) {
+  if (isGameOver) return;
   let horizontal = 0;
   let vertical = 0;
   if (keyboardKeys.has('ArrowLeft') || pointerKeys.has('ArrowLeft') || buttonKeys.has('ArrowLeft')) horizontal -= 1;
@@ -180,13 +202,81 @@ function update(delta) {
   } else stepTimer = 0;
   updateCollectibles(delta);
   updateHazards(delta);
+  updateRat(delta);
   collectItems();
   checkHazardCollisions();
+  checkRatCollision();
+  attackCooldown = Math.max(0, attackCooldown - delta);
+  attackFlash = Math.max(0, attackFlash - delta);
   updateHealthReadout();
+  updateRatHealthReadout();
   positionReadout.textContent = `X ${String(Math.round(cat.x)).padStart(4, '0')} / Y ${String(Math.round(cat.y)).padStart(4, '0')}`;
   scoreReadout.textContent = `SCORE ${String(score).padStart(4, '0')}`;
   foodReadout.textContent = `FOOD ${String(foodCount).padStart(4, '0')}`;
   if (!isGameOver) motionReadout.textContent = cat.walking ? `WALKING // FACING ${cat.direction.toUpperCase()}` : 'STANDING BY';
+}
+
+function getRatSpawnDelay() {
+  return 30 + Math.random() * 15;
+}
+
+function updateRat(delta) {
+  if (!rat) {
+    ratSpawnTimer -= delta;
+    if (ratSpawnTimer <= 0) spawnRat();
+    return;
+  }
+  ratContactCooldown = Math.max(0, ratContactCooldown - delta);
+  rat.targetTimer -= delta;
+  if (rat.targetTimer <= 0) chooseRatTarget();
+  const distance = Math.hypot(rat.targetX - rat.x, rat.targetY - rat.y);
+  if (distance > 2) {
+    rat.x += ((rat.targetX - rat.x) / distance) * RAT_SPEED * delta;
+    rat.y += ((rat.targetY - rat.y) / distance) * RAT_SPEED * delta;
+  }
+}
+
+function chooseRatTarget() {
+  rat.targetX = 50 + Math.random() * (canvas.width - 100);
+  rat.targetY = 70 + Math.random() * (canvas.height - 120);
+  rat.targetTimer = 1.5 + Math.random() * 2;
+}
+
+function spawnRat() {
+  let x;
+  let y;
+  do {
+    x = 50 + Math.random() * (canvas.width - 100);
+    y = 70 + Math.random() * (canvas.height - 120);
+  } while (Math.hypot(cat.x - x, cat.y - y) < RAT_MINIMUM_SPAWN_DISTANCE);
+  rat = { x, y, targetX: x, targetY: y, targetTimer: 0, health: RAT_MAX_HEALTH };
+  chooseRatTarget();
+  ratContactCooldown = 0;
+  pickupMessage = 'RAT INCOMING';
+}
+
+function attack() {
+  if (isPaused || isGameOver || attackCooldown > 0) return;
+  startAudio();
+  attackCooldown = 0.35;
+  attackFlash = 0.15;
+  playTone(260, 0.08, 'square', 0.04);
+  if (!rat || Math.hypot(cat.x - rat.x, cat.y - rat.y) > RAT_ATTACK_RANGE) return;
+  rat.health = Math.max(0, rat.health - 25);
+  if (rat.health === 0) {
+    rat = null;
+    ratSpawnTimer = getRatSpawnDelay();
+    pickupMessage = 'RAT DEFEATED';
+    playTone(520, 0.12, 'square', 0.045);
+  }
+}
+
+function checkRatCollision() {
+  if (isGameOver || !rat || ratContactCooldown > 0 || Math.hypot(cat.x - rat.x, cat.y - rat.y) > 34) return;
+  ratContactCooldown = RAT_CONTACT_COOLDOWN;
+  health = Math.max(0, health - RAT_DAMAGE);
+  playTone(145, 0.1, 'sawtooth', 0.04);
+  if (health === 0) showGameOver();
 }
 
 function updateHazards(delta) {
@@ -250,6 +340,13 @@ function updateHealthReadout() {
   healthBar.setAttribute('aria-valuenow', String(health));
 }
 
+function updateRatHealthReadout() {
+  const currentHealth = rat ? rat.health : 0;
+  ratHealthValue.textContent = rat ? String(currentHealth) : '--';
+  ratHealthFill.style.width = `${currentHealth}%`;
+  ratHealthBar.setAttribute('aria-valuenow', String(currentHealth));
+}
+
 function showGameOver() {
   isGameOver = true;
   keyboardKeys.clear();
@@ -268,6 +365,7 @@ function resetGame() {
   cat.frame = 0;
   collectibles.length = 0;
   hazards.length = 0;
+  rat = null;
   spawnFood(Math.random() < 0.5 ? 'fish' : 'water');
   score = 0;
   foodCount = 0;
@@ -275,6 +373,10 @@ function resetGame() {
   health = MAX_HEALTH;
   spawnTimer = 4;
   hazardTimer = HAZARD_SPAWN_INTERVAL;
+  ratSpawnTimer = getRatSpawnDelay();
+  ratContactCooldown = 0;
+  attackCooldown = 0;
+  attackFlash = 0;
   isPaused = false;
   isGameOver = false;
   pauseMenu.hidden = true;
@@ -282,6 +384,7 @@ function resetGame() {
   pauseButton.textContent = 'PAUSE';
   motionReadout.textContent = 'STANDING BY';
   updateHealthReadout();
+  updateRatHealthReadout();
   lastTime = performance.now();
 }
 
@@ -331,11 +434,42 @@ function drawMap() {
   context.fillText('NO WALLS / NO LIMITS', canvas.width - 158, canvas.height - 25);
   collectibles.filter((item) => item.active).forEach(drawCollectible);
   hazards.filter((hazard) => hazard.active).forEach(drawMushroom);
+  if (rat) drawRat();
+  if (attackFlash > 0) {
+    context.strokeStyle = '#d7ed47';
+    context.lineWidth = 4;
+    context.beginPath();
+    context.arc(cat.x, cat.y, RAT_ATTACK_RANGE, 0, Math.PI * 2);
+    context.stroke();
+  }
   if (pickupMessage) {
     context.fillStyle = '#171717';
     context.font = '700 14px monospace';
     context.fillText(pickupMessage, canvas.width / 2 - 48, 38);
     pickupMessage = '';
+  }
+
+  function drawRat() {
+    context.save();
+    context.translate(rat.x, rat.y);
+    context.fillStyle = '#171717';
+    context.fillRect(-18, -10, 36, 24);
+    context.fillStyle = '#f05a47';
+    context.fillRect(-14, -17, 8, 8);
+    context.fillRect(6, -17, 8, 8);
+    context.fillStyle = '#f5f2e9';
+    context.fillRect(-11, -3, 5, 5);
+    context.fillRect(6, -3, 5, 5);
+    context.fillStyle = '#f05a47';
+    context.fillRect(18, -3, 18, 5);
+    context.fillStyle = '#171717';
+    context.fillRect(-12, 14, 6, 8);
+    context.fillRect(7, 14, 6, 8);
+    context.fillStyle = '#171717';
+    context.fillRect(-22, 23, 45, 5);
+    context.fillStyle = '#d7ed47';
+    context.fillRect(-20, 24, 40 * (rat.health / RAT_MAX_HEALTH), 3);
+    context.restore();
   }
 
   function drawMushroom(hazard) {
@@ -435,5 +569,6 @@ function loop(now) {
 
 spawnFood('fish');
 spawnFood('water');
+updateRatHealthReadout();
 render();
 requestAnimationFrame(loop);
