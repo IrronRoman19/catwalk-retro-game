@@ -19,18 +19,19 @@ The cat can explore the entire blank map and is kept inside its visible boundari
 
 Collect the occasional items to increase the score:
 
-- **Fish**: +100 points
-- **Water**: +150 points
+- **Coin**: +10 points
+- **Fish**: +100 points and restores 20 HP
+- **Water**: +50 points and restores 10 HP
 
 The game also includes synthesized retro sound effects: footsteps play while the cat walks, and each collectible has its own pickup chime. Sound starts after the first arrow-key press because browsers block audio before user interaction.
 
-One fish and one water item spawn immediately at game start. After a restart, one randomly selected fish or water item spawns immediately. After that, exactly one randomly selected fish or water item spawns at one random location every 4 seconds; the animation loop does not add food. Fish are white and water is blue; spawned items stay on the map until the cat collects them. The HUD displays how many food items the cat has received.
+One coin spawns immediately at game start. Coins spawn again at a random interval of 5 to 35 seconds. One fish and one water item also spawn immediately at game start. After a restart, one randomly selected fish or water item and one coin spawn immediately. After that, one randomly selected fish or water item spawns at a random location every 10 to 60 seconds; the animation loop does not add food. Fish are white, water is blue, and coins are yellow. Spawned items stay on the map until the cat collects them. Collecting fish or water restores health and the HUD displays how many food items the cat has received.
 
 Use the **Mute Audio** button in the game HUD or pause menu to mute and unmute sound effects.
 
 Press **Esc** or the **Pause** button to open the pause menu. The pause menu freezes movement, animation, item timers, and score activity; choose **Resume Game** or press **Esc** again to continue.
 
-The cat starts with 100 HP. A poisoned mushroom appears every 20 seconds and disappears 15 seconds after spawning. Each mushroom has a pie-style timer around it that starts full and empties as its lifetime runs out. Touching one removes 25 HP and the mushroom disappears. When health reaches 0, the game ends and shows the final score and food count. Select **Play Again** to reset the entire session.
+The cat starts with 100 HP. A poisoned mushroom appears at a randomized 30 to 60 second interval and disappears 15 seconds after spawning. Each mushroom has a pie-style timer around it that starts full and empties as its lifetime runs out. Touching one removes 25 HP and the mushroom disappears. When health reaches 0, the game ends and shows the final score and food count. Select **Play Again** to reset the entire session.
 
 Poisoned mushrooms spawn at least 3 map blocks (120 pixels) from the cat. Contact plays a damage sound, and reaching 0 HP plays a distinct game-over sound. These sounds follow the mute control.
 
