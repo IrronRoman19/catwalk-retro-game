@@ -33,13 +33,19 @@ const RAT_ATTACK_RANGE = 76;
 const RAT_MINIMUM_SPAWN_DISTANCE = 200;
 const RAT_SPEED = 72;
 const RAT_CONTACT_COOLDOWN = 1;
-const HAZARD_SPAWN_INTERVAL = 20;
 const MUSHROOM_LIFETIME = 15;
 const MUSHROOM_EXPIRY_GRACE = 0.2;
+const FOOD_SPAWN_MIN = 10;
+const FOOD_SPAWN_MAX = 60;
+const COIN_SPAWN_MIN = 5;
+const COIN_SPAWN_MAX = 35;
+const MUSHROOM_SPAWN_MIN = 30;
+const MUSHROOM_SPAWN_MAX = 60;
 let score = 0;
 let foodCount = 0;
-let spawnTimer = 4;
-let hazardTimer = HAZARD_SPAWN_INTERVAL;
+let foodSpawnTimer = getFoodSpawnDelay();
+let coinSpawnTimer = getCoinSpawnDelay();
+let hazardTimer = getMushroomSpawnDelay();
 let ratSpawnTimer = getRatSpawnDelay();
 let ratContactCooldown = 0;
 let attackCooldown = 0;
@@ -171,7 +177,7 @@ function playTone(frequency, duration, type = 'square', volume = 0.035, delay = 
 }
 
 function playPickupSound(type) {
-  const notes = type === 'fish' ? [520, 780] : [392, 523, 659];
+  const notes = type === 'coin' ? [659, 988] : type === 'fish' ? [520, 780] : [392, 523, 659];
   notes.forEach((note, index) => playTone(note, 0.12, 'square', 0.045, index * 0.08));
 }
 
@@ -214,6 +220,18 @@ function update(delta) {
 
 function getRatSpawnDelay() {
   return 30 + Math.random() * 15;
+}
+
+function getFoodSpawnDelay() {
+  return FOOD_SPAWN_MIN + Math.random() * (FOOD_SPAWN_MAX - FOOD_SPAWN_MIN);
+}
+
+function getCoinSpawnDelay() {
+  return COIN_SPAWN_MIN + Math.random() * (COIN_SPAWN_MAX - COIN_SPAWN_MIN);
+}
+
+function getMushroomSpawnDelay() {
+  return MUSHROOM_SPAWN_MIN + Math.random() * (MUSHROOM_SPAWN_MAX - MUSHROOM_SPAWN_MIN);
 }
 
 function updateRat(delta) {
@@ -291,7 +309,7 @@ function updateHazards(delta) {
   hazardTimer -= delta;
   if (hazardTimer <= 0) {
     spawnMushroom();
-    hazardTimer = HAZARD_SPAWN_INTERVAL;
+    hazardTimer = getMushroomSpawnDelay();
   }
   hazards.forEach((hazard) => {
     if (!hazard.active) return;
@@ -368,12 +386,14 @@ function resetGame() {
   hazards.length = 0;
   rat = null;
   spawnFood(Math.random() < 0.5 ? 'fish' : 'water');
+  spawnCoin();
   score = 0;
   foodCount = 0;
   pickupMessage = '';
   health = MAX_HEALTH;
-  spawnTimer = 4;
-  hazardTimer = HAZARD_SPAWN_INTERVAL;
+  foodSpawnTimer = getFoodSpawnDelay();
+  coinSpawnTimer = getCoinSpawnDelay();
+  hazardTimer = getMushroomSpawnDelay();
   ratSpawnTimer = getRatSpawnDelay();
   ratContactCooldown = 0;
   attackCooldown = 0;
@@ -389,10 +409,15 @@ function resetGame() {
 }
 
 function updateCollectibles(delta) {
-  spawnTimer -= delta;
-  if (spawnTimer <= 0) {
+  foodSpawnTimer -= delta;
+  if (foodSpawnTimer <= 0) {
     spawnFood(Math.random() < 0.5 ? 'fish' : 'water');
-    spawnTimer = 4;
+    foodSpawnTimer = getFoodSpawnDelay();
+  }
+  coinSpawnTimer -= delta;
+  if (coinSpawnTimer <= 0) {
+    spawnCoin();
+    coinSpawnTimer = getCoinSpawnDelay();
   }
 }
 
@@ -401,7 +426,10 @@ function collectItems() {
     if (!item.active || Math.hypot(cat.x - item.x, cat.y - item.y) > 34) return;
     item.active = false;
     score += item.value;
-    foodCount += 1;
+    if (item.type !== 'coin') {
+      foodCount += 1;
+      health = Math.min(MAX_HEALTH, health + (item.type === 'fish' ? 20 : 10));
+    }
     pickupMessage = `${item.type.toUpperCase()} +${item.value}`;
     playPickupSound(item.type);
     item.active = false;
@@ -413,7 +441,18 @@ function spawnFood(type) {
     type,
     x: 50 + Math.random() * (canvas.width - 100),
     y: 70 + Math.random() * (canvas.height - 120),
-    value: type === 'fish' ? 100 : 150,
+    value: type === 'fish' ? 100 : 50,
+    active: true
+  });
+  return collectibles[collectibles.length - 1];
+}
+
+function spawnCoin() {
+  collectibles.push({
+    type: 'coin',
+    x: 50 + Math.random() * (canvas.width - 100),
+    y: 70 + Math.random() * (canvas.height - 120),
+    value: 10,
     active: true
   });
   return collectibles[collectibles.length - 1];
@@ -518,10 +557,17 @@ function drawMap() {
 function drawCollectible(item) {
   context.save();
   context.translate(item.x, item.y);
-  context.fillStyle = item.type === 'fish' ? '#f5f2e9' : '#4aa3df';
+  context.fillStyle = item.type === 'fish' ? '#f5f2e9' : item.type === 'coin' ? '#d7ed47' : '#4aa3df';
   context.strokeStyle = '#171717';
   context.lineWidth = 3;
-  if (item.type === 'fish') {
+  if (item.type === 'coin') {
+    context.beginPath();
+    context.arc(0, 0, 12, 0, Math.PI * 2);
+    context.fill();
+    context.stroke();
+    context.fillStyle = '#171717';
+    context.fillRect(-3, -8, 6, 16);
+  } else if (item.type === 'fish') {
     context.beginPath();
     context.ellipse(0, 0, 15, 9, 0, 0, Math.PI * 2);
     context.fill();
@@ -638,5 +684,6 @@ function loop(now) {
 
 spawnFood('fish');
 spawnFood('water');
+spawnCoin();
 render();
 requestAnimationFrame(loop);
