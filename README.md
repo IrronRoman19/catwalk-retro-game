@@ -25,7 +25,7 @@ Collect the occasional items to increase the score:
 
 The game also includes synthesized retro sound effects: footsteps play while the cat walks, and each collectible has its own pickup chime. Sound starts after the first arrow-key press because browsers block audio before user interaction.
 
-One coin spawns immediately at game start. Coins spawn again at a random interval of 5 to 35 seconds. One fish and one water item also spawn immediately at game start. After a restart, one randomly selected fish or water item and one coin spawn immediately. After that, one randomly selected fish or water item spawns at a random location every 10 to 60 seconds; the animation loop does not add food. Fish are white, water is blue, and coins are yellow. Spawned items stay on the map until the cat collects them. Collecting fish or water restores health and the HUD displays how many food items the cat has received.
+Coins spawn in randomized batches of 1 to 5 items at a random interval of 5 to 10 seconds. Fish and water spawn in randomized batches of 1 to 4 items at a random interval of 10 to 30 seconds. One fish and one water item also spawn immediately at game start, and coins include an immediate starting coin. After a restart, one randomly selected fish or water item and a coin spawn immediately. Fish are white, water is blue, and coins are yellow. Spawned items stay on the map until the cat collects them. Collecting fish or water restores health and the HUD displays how many food items the cat has received.
 
 Use the **Mute Audio** button in the game HUD or pause menu to mute and unmute sound effects.
 

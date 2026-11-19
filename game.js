@@ -36,9 +36,13 @@ const RAT_CONTACT_COOLDOWN = 1;
 const MUSHROOM_LIFETIME = 15;
 const MUSHROOM_EXPIRY_GRACE = 0.2;
 const FOOD_SPAWN_MIN = 10;
-const FOOD_SPAWN_MAX = 60;
+const FOOD_SPAWN_MAX = 30;
+const FOOD_SPAWN_COUNT_MIN = 1;
+const FOOD_SPAWN_COUNT_MAX = 4;
 const COIN_SPAWN_MIN = 5;
-const COIN_SPAWN_MAX = 35;
+const COIN_SPAWN_MAX = 10;
+const COIN_SPAWN_COUNT_MIN = 1;
+const COIN_SPAWN_COUNT_MAX = 5;
 const MUSHROOM_SPAWN_MIN = 30;
 const MUSHROOM_SPAWN_MAX = 60;
 let score = 0;
@@ -226,8 +230,16 @@ function getFoodSpawnDelay() {
   return FOOD_SPAWN_MIN + Math.random() * (FOOD_SPAWN_MAX - FOOD_SPAWN_MIN);
 }
 
+function getFoodSpawnCount() {
+  return FOOD_SPAWN_COUNT_MIN + Math.floor(Math.random() * (FOOD_SPAWN_COUNT_MAX - FOOD_SPAWN_COUNT_MIN + 1));
+}
+
 function getCoinSpawnDelay() {
   return COIN_SPAWN_MIN + Math.random() * (COIN_SPAWN_MAX - COIN_SPAWN_MIN);
+}
+
+function getCoinSpawnCount() {
+  return COIN_SPAWN_COUNT_MIN + Math.floor(Math.random() * (COIN_SPAWN_COUNT_MAX - COIN_SPAWN_COUNT_MIN + 1));
 }
 
 function getMushroomSpawnDelay() {
@@ -411,12 +423,18 @@ function resetGame() {
 function updateCollectibles(delta) {
   foodSpawnTimer -= delta;
   if (foodSpawnTimer <= 0) {
-    spawnFood(Math.random() < 0.5 ? 'fish' : 'water');
+    const foodCountToSpawn = getFoodSpawnCount();
+    for (let index = 0; index < foodCountToSpawn; index += 1) {
+      spawnFood(Math.random() < 0.5 ? 'fish' : 'water');
+    }
     foodSpawnTimer = getFoodSpawnDelay();
   }
   coinSpawnTimer -= delta;
   if (coinSpawnTimer <= 0) {
-    spawnCoin();
+    const coinCountToSpawn = getCoinSpawnCount();
+    for (let index = 0; index < coinCountToSpawn; index += 1) {
+      spawnCoin();
+    }
     coinSpawnTimer = getCoinSpawnDelay();
   }
 }
