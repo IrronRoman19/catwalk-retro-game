@@ -66,5 +66,3 @@ Before marking any coding task or PR review as complete:
 4. **Flag Only (Non-Blocking):** Leave **Low** severity findings (such as Low Rule violations or minor informational notes) unchanged in the code, but explicitly list and flag all of them in the final summary for human review.
 5. **Disagreements:** If a High or Medium finding is invalid/false positive, do not apply a blind fix—document the disagreement with code or requirement evidence.
 6. **Blocker Rule:** If a valid High/Medium issue cannot be resolved, checks fail, or the review loop stops making progress, report the task as **NOT DONE** and explain what human input is needed.
-
-Testing
