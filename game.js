@@ -16,7 +16,11 @@ const healthValue = document.querySelector('#health-value');
 const healthFill = document.querySelector('#health-fill');
 const healthBar = document.querySelector('.health-bar');
 const attackButton = document.querySelector('#attack-button');
+const fireButton = document.querySelector('#fire-button');
+const copyrightYear = document.querySelector('#copyright-year');
 const directionButtons = document.querySelectorAll('[data-direction]');
+
+copyrightYear.textContent = new Date().getFullYear();
 
 const keyboardKeys = new Set();
 const pointerKeys = new Set();
@@ -98,6 +102,7 @@ muteButton.addEventListener('click', toggleMute);
 pauseMuteButton.addEventListener('click', toggleMute);
 playAgainButton.addEventListener('click', resetGame);
 attackButton.addEventListener('click', attack);
+fireButton.addEventListener('click', attack);
 
 directionButtons.forEach((button) => {
   const direction = button.dataset.direction;

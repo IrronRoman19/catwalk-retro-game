@@ -14,6 +14,7 @@ Use the arrow keys to move:
 - **Right**: move east
 
 On touch devices or with a mouse, press and hold the directional buttons below the game to move in the same four directions.
+Use the **FIRE** button below the game to attack the rat on touch devices or with a mouse.
 
 The cat can explore the entire blank map and is kept inside its visible boundaries.
 
