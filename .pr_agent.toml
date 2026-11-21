@@ -11,5 +11,3 @@ Specific bugs and edge cases to catch:
 - Canvas & Collisions: verify entities stay within canvas bounds and expired/inactive hazards cannot deal damage.
 - Offline persistence: ensure localStorage reads/writes handle private browsing or quota errors gracefully without crashing the game loop.
 """
-
-Testing
