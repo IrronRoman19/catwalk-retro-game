@@ -20,13 +20,17 @@ The cat can explore the entire blank map and is kept inside its visible boundari
 
 Collect the occasional items to increase the score:
 
-- **Coin**: +10 points
-- **Fish**: +100 points and restores 20 HP
+- **Regular coin**: +10 points
+- **Coin x2**: +20 points
+- **Coin x5**: +50 points
+- **Coin x10**: +100 points
+- **Fish**: +100 points and restores 30 HP
 - **Water**: +50 points and restores 10 HP
+- **Yogurt**: +70 points and restores 20 HP
 
 The game also includes synthesized retro sound effects: footsteps play while the cat walks, and each collectible has its own pickup chime. Sound starts after the first arrow-key press because browsers block audio before user interaction.
 
-Coins spawn in randomized batches of 1 to 5 items at a random interval of 5 to 10 seconds. Fish and water spawn in randomized batches of 1 to 4 items at a random interval of 10 to 30 seconds. One fish and one water item also spawn immediately at game start, and coins include an immediate starting coin. After a restart, one randomly selected fish or water item and a coin spawn immediately. Fish are white, water is blue, and coins are yellow. Spawned items stay on the map until the cat collects them. Collecting fish or water restores health and the HUD displays how many food items the cat has received.
+Coins spawn in randomized batches of 1 to 5 items at a random interval of 5 to 10 seconds. Coin values are randomly selected: regular coins have a 13/24 chance, x2 coins 1/4, x5 coins 1/8, and x10 coins 1/12. Fish, water, and yogurt spawn in randomized batches of 1 to 4 items at a random interval of 10 to 30 seconds, with each item randomly choosing its kind. One fish, one water, and one yogurt item spawn immediately at game start, and coins include an immediate starting coin. After a restart, one randomly selected fish, water, or yogurt item and a coin spawn immediately. Spawned items stay on the map until the cat collects them. Collecting food restores health and the HUD displays how many food items the cat has received.
 
 Use the **Mute Audio** button in the game HUD or pause menu to mute and unmute sound effects.
 

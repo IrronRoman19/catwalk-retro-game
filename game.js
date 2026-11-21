@@ -186,7 +186,7 @@ function playTone(frequency, duration, type = 'square', volume = 0.035, delay = 
 }
 
 function playPickupSound(type) {
-  const notes = type === 'coin' ? [659, 988] : type === 'fish' ? [520, 780] : [392, 523, 659];
+  const notes = type === 'coin' ? [659, 988] : type === 'fish' ? [520, 780] : type === 'yogurt' ? [440, 554, 659] : [392, 523, 659];
   notes.forEach((note, index) => playTone(note, 0.12, 'square', 0.045, index * 0.08));
 }
 
@@ -245,6 +245,19 @@ function getCoinSpawnDelay() {
 
 function getCoinSpawnCount() {
   return COIN_SPAWN_COUNT_MIN + Math.floor(Math.random() * (COIN_SPAWN_COUNT_MAX - COIN_SPAWN_COUNT_MIN + 1));
+}
+
+function getRandomFoodType() {
+  const roll = Math.floor(Math.random() * 3);
+  return ['fish', 'water', 'yogurt'][roll];
+}
+
+function getRandomCoin() {
+  const roll = Math.floor(Math.random() * 24);
+  if (roll < 2) return { multiplier: 10, value: 100 };
+  if (roll < 5) return { multiplier: 5, value: 50 };
+  if (roll < 11) return { multiplier: 2, value: 20 };
+  return { multiplier: 1, value: 10 };
 }
 
 function getMushroomSpawnDelay() {
@@ -402,7 +415,7 @@ function resetGame() {
   collectibles.length = 0;
   hazards.length = 0;
   rat = null;
-  spawnFood(Math.random() < 0.5 ? 'fish' : 'water');
+  spawnFood(getRandomFoodType());
   spawnCoin();
   score = 0;
   foodCount = 0;
@@ -430,7 +443,7 @@ function updateCollectibles(delta) {
   if (foodSpawnTimer <= 0) {
     const foodCountToSpawn = getFoodSpawnCount();
     for (let index = 0; index < foodCountToSpawn; index += 1) {
-      spawnFood(Math.random() < 0.5 ? 'fish' : 'water');
+      spawnFood(getRandomFoodType());
     }
     foodSpawnTimer = getFoodSpawnDelay();
   }
@@ -451,7 +464,8 @@ function collectItems() {
     score += item.value;
     if (item.type !== 'coin') {
       foodCount += 1;
-      health = Math.min(MAX_HEALTH, health + (item.type === 'fish' ? 20 : 10));
+      const healing = item.type === 'fish' ? 30 : item.type === 'yogurt' ? 20 : 10;
+      health = Math.min(MAX_HEALTH, health + healing);
     }
     pickupMessage = `${item.type.toUpperCase()} +${item.value}`;
     playPickupSound(item.type);
@@ -464,18 +478,20 @@ function spawnFood(type) {
     type,
     x: 50 + Math.random() * (canvas.width - 100),
     y: 70 + Math.random() * (canvas.height - 120),
-    value: type === 'fish' ? 100 : 50,
+    value: type === 'fish' ? 100 : type === 'yogurt' ? 70 : 50,
     active: true
   });
   return collectibles[collectibles.length - 1];
 }
 
 function spawnCoin() {
+  const coin = getRandomCoin();
   collectibles.push({
     type: 'coin',
+    multiplier: coin.multiplier,
     x: 50 + Math.random() * (canvas.width - 100),
     y: 70 + Math.random() * (canvas.height - 120),
-    value: 10,
+    value: coin.value,
     active: true
   });
   return collectibles[collectibles.length - 1];
@@ -580,7 +596,21 @@ function drawMap() {
 function drawCollectible(item) {
   context.save();
   context.translate(item.x, item.y);
-  context.fillStyle = item.type === 'fish' ? '#f5f2e9' : item.type === 'coin' ? '#d7ed47' : '#4aa3df';
+  if (item.type === 'coin') {
+    context.fillStyle = item.multiplier === 10
+      ? '#f5f2e9'
+      : item.multiplier === 5
+        ? '#4aa3df'
+        : item.multiplier === 2
+          ? '#e8a93c'
+          : '#d7ed47';
+  } else if (item.type === 'fish') {
+    context.fillStyle = '#f5f2e9';
+  } else if (item.type === 'yogurt') {
+    context.fillStyle = '#f5f2e9';
+  } else {
+    context.fillStyle = '#4aa3df';
+  }
   context.strokeStyle = '#171717';
   context.lineWidth = 3;
   if (item.type === 'coin') {
@@ -589,13 +619,31 @@ function drawCollectible(item) {
     context.fill();
     context.stroke();
     context.fillStyle = '#171717';
-    context.fillRect(-3, -8, 6, 16);
+    if (item.multiplier === 1) {
+      context.fillRect(-3, -8, 6, 16);
+    } else {
+      context.font = '700 8px monospace';
+      context.textAlign = 'center';
+      context.textBaseline = 'middle';
+      context.fillText(`x${item.multiplier}`, 0, 0);
+    }
   } else if (item.type === 'fish') {
     context.beginPath();
     context.ellipse(0, 0, 15, 9, 0, 0, Math.PI * 2);
     context.fill();
     context.beginPath(); context.moveTo(-13, 0); context.lineTo(-26, -10); context.lineTo(-26, 10); context.closePath(); context.fill();
     context.fillStyle = '#d7ed47'; context.fillRect(6, -3, 3, 3);
+  } else if (item.type === 'yogurt') {
+    context.beginPath();
+    context.moveTo(-13, -9);
+    context.lineTo(-9, 10);
+    context.lineTo(9, 10);
+    context.lineTo(13, -9);
+    context.closePath();
+    context.fill();
+    context.stroke();
+    context.fillStyle = '#4aa3df';
+    context.fillRect(-7, -3, 14, 4);
   } else {
     context.beginPath();
     context.moveTo(0, -17);
@@ -707,6 +755,7 @@ function loop(now) {
 
 spawnFood('fish');
 spawnFood('water');
+spawnFood('yogurt');
 spawnCoin();
 render();
 requestAnimationFrame(loop);
