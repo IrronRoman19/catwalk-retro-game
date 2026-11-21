@@ -34,6 +34,8 @@ Coins spawn in randomized batches of 1 to 5 items at a random interval of 5 to 1
 
 Use the **Mute Audio** button in the game HUD or pause menu to mute and unmute sound effects.
 
+The cat has a health bar below it on the map. Green indicates at least 70 HP, yellow indicates more than 30 and less than 70 HP, and red indicates 30 HP or less. The HUD health bar uses the same colors. When the cat takes damage, it briefly blinks and a damage message appears. Collecting food or coins and defeating the rat show temporary status messages. At 30 HP or below, a low-health warning remains visible until health improves.
+
 Press **Esc** or the **Pause** button to open the pause menu. The pause menu freezes movement, animation, item timers, and score activity; choose **Resume Game** or press **Esc** again to continue.
 
 The cat starts with 100 HP. A poisoned mushroom appears at a randomized 30 to 60 second interval and disappears 15 seconds after spawning. Each mushroom has a pie-style timer around it that starts full and empties as its lifetime runs out. Touching one removes 25 HP and the mushroom disappears. When health reaches 0, the game ends and shows the final score and food count. Select **Play Again** to reset the entire session.

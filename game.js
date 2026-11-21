@@ -58,6 +58,8 @@ let ratSpawnTimer = getRatSpawnDelay();
 let ratContactCooldown = 0;
 let attackCooldown = 0;
 let attackFlash = 0;
+let catDamageFlash = 0;
+let statusMessageTimer = 0;
 let health = MAX_HEALTH;
 let pickupMessage = '';
 let audioContext;
@@ -220,6 +222,9 @@ function update(delta) {
   checkRatCollision();
   attackCooldown = Math.max(0, attackCooldown - delta);
   attackFlash = Math.max(0, attackFlash - delta);
+  catDamageFlash = Math.max(0, catDamageFlash - delta);
+  statusMessageTimer = Math.max(0, statusMessageTimer - delta);
+  if (statusMessageTimer === 0) pickupMessage = '';
   updateHealthReadout();
   positionReadout.textContent = `X ${String(Math.round(cat.x)).padStart(4, '0')} / Y ${String(Math.round(cat.y)).padStart(4, '0')}`;
   scoreReadout.textContent = `SCORE ${String(score).padStart(4, '0')}`;
@@ -296,7 +301,7 @@ function spawnRat() {
   rat = { x, y, targetX: x, targetY: y, targetTimer: 0, health: RAT_MAX_HEALTH };
   chooseRatTarget();
   ratContactCooldown = 0;
-  pickupMessage = 'RAT INCOMING';
+  setStatusMessage('RAT INCOMING');
 }
 
 function attack() {
@@ -322,7 +327,7 @@ function attack() {
   if (rat.health === 0) {
     rat = null;
     ratSpawnTimer = getRatSpawnDelay();
-    pickupMessage = 'RAT DEFEATED';
+    setStatusMessage('RAT DEFEATED');
     playTone(520, 0.12, 'square', 0.045);
   }
 }
@@ -331,6 +336,8 @@ function checkRatCollision() {
   if (isGameOver || !rat || ratContactCooldown > 0 || Math.hypot(cat.x - rat.x, cat.y - rat.y) > 34) return;
   ratContactCooldown = RAT_CONTACT_COOLDOWN;
   health = Math.max(0, health - RAT_DAMAGE);
+  catDamageFlash = 0.6;
+  setStatusMessage(`CAT HIT -${RAT_DAMAGE}`);
   playTone(145, 0.1, 'sawtooth', 0.04);
   if (health === 0) showGameOver();
 }
@@ -362,6 +369,8 @@ function checkHazardCollisions() {
     if (isGameOver || !hazard.active || hazard.expired || Math.hypot(cat.x - hazard.x, cat.y - hazard.y) > 34) return;
     hazard.active = false;
     health = Math.max(0, health - MUSHROOM_DAMAGE);
+    catDamageFlash = 0.6;
+    setStatusMessage(`CAT HIT -${MUSHROOM_DAMAGE}`);
     playTone(180, 0.12, 'sawtooth', 0.04);
     if (health === 0) {
       playTone(110, 0.2, 'square', 0.05);
@@ -392,8 +401,19 @@ function spawnMushroom() {
 function updateHealthReadout() {
   healthValue.textContent = String(health);
   healthFill.style.width = `${health}%`;
-  healthFill.style.backgroundColor = health <= 25 ? '#f05a47' : 'var(--acid)';
+  healthFill.style.backgroundColor = getHealthColor(health);
   healthBar.setAttribute('aria-valuenow', String(health));
+}
+
+function getHealthColor(currentHealth) {
+  if (currentHealth <= 30) return '#f05a47';
+  if (currentHealth < 70) return '#e8a93c';
+  return '#d7ed47';
+}
+
+function setStatusMessage(message) {
+  pickupMessage = message;
+  statusMessageTimer = 1.6;
 }
 
 function showGameOver() {
@@ -420,6 +440,8 @@ function resetGame() {
   score = 0;
   foodCount = 0;
   pickupMessage = '';
+  statusMessageTimer = 0;
+  catDamageFlash = 0;
   health = MAX_HEALTH;
   foodSpawnTimer = getFoodSpawnDelay();
   coinSpawnTimer = getCoinSpawnDelay();
@@ -467,7 +489,7 @@ function collectItems() {
       const healing = item.type === 'fish' ? 30 : item.type === 'yogurt' ? 20 : 10;
       health = Math.min(MAX_HEALTH, health + healing);
     }
-    pickupMessage = `${item.type.toUpperCase()} +${item.value}`;
+    setStatusMessage(`${item.type.toUpperCase()} +${item.value}${item.type === 'coin' ? ' SCORE' : ''}`);
     playPickupSound(item.type);
     item.active = false;
   });
@@ -529,9 +551,19 @@ function drawMap() {
   }
   if (pickupMessage) {
     context.fillStyle = '#171717';
+    context.fillRect(canvas.width / 2 - 92, 25, 184, 22);
+    context.fillStyle = '#d7ed47';
     context.font = '700 14px monospace';
-    context.fillText(pickupMessage, canvas.width / 2 - 48, 38);
-    pickupMessage = '';
+    context.textAlign = 'center';
+    context.fillText(pickupMessage, canvas.width / 2, 40);
+  }
+  if (health <= 30) {
+    context.fillStyle = '#171717';
+    context.fillRect(12, 48, 132, 24);
+    context.fillStyle = '#f05a47';
+    context.font = '700 12px monospace';
+    context.textAlign = 'left';
+    context.fillText('LOW HEALTH!', 20, 65);
   }
 
   function drawRat() {
@@ -658,11 +690,24 @@ function drawCollectible(item) {
   context.restore();
 }
 
+function drawCatHealthBar() {
+  context.save();
+  context.globalAlpha = 1;
+  context.fillStyle = '#171717';
+  context.fillRect(-23, 43, 46, 7);
+  context.fillStyle = getHealthColor(health);
+  context.fillRect(-21, 45, 42 * (health / MAX_HEALTH), 3);
+  context.restore();
+}
+
 function drawCat() {
   const step = cat.walking && Math.floor(cat.frame) === 1 ? 4 : 0;
   const facingLeft = cat.direction === 'left';
   context.save();
   context.translate(cat.x, cat.y);
+  if (catDamageFlash > 0 && Math.floor(catDamageFlash * 10) % 2 === 0) {
+    context.globalAlpha = 0.25;
+  }
 
   if (cat.direction === 'up') {
     context.fillStyle = '#aaa79e';
@@ -688,6 +733,7 @@ function drawCat() {
     context.fillRect(6, 25 + (4 - step), 6, 12 - (4 - step));
     context.fillRect(-4, -25, 8, 5);
     context.fillRect(13, 5 + step, 5, 14);
+    drawCatHealthBar();
     context.restore();
     return;
   }
@@ -721,6 +767,7 @@ function drawCat() {
     context.fillRect(6, 25 + (4 - step), 6, 12 - (4 - step));
     context.fillRect(-27, 5 + (4 - step), 15, 5);
     context.fillRect(-29, 4 + step, 5, 14);
+    drawCatHealthBar();
     context.restore();
     return;
   }
@@ -740,6 +787,7 @@ function drawCat() {
   context.fillStyle = '#171717';
   context.fillRect(-11, 25 + step, 6, 12 - step); context.fillRect(6, 25 + (4 - step), 6, 12 - (4 - step));
   context.fillRect(13, 5, 15, 5); context.fillRect(24, 4, 5, 14);
+  drawCatHealthBar();
   context.restore();
 }
 
