@@ -52,4 +52,4 @@ One rat spawns after a random 30-45 second interval at least 200 pixels from the
 
 ## Style
 
-The game uses a CRT-inspired dark-green board, grid-based open terrain, pixelated rendering, and a bold color-coded arcade HUD. The cat is drawn directly on the HTML canvas, so the game does not need external image assets.
+The game uses a CRT-inspired dark-green board, grid-based open terrain, pixelated rendering, and a bold color-coded arcade HUD. The map no longer renders decorative terrain labels. The cat is drawn directly on the HTML canvas, so the game does not need external image assets.

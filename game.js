@@ -71,8 +71,7 @@ let lastTime = performance.now();
 const boardPalette = {
   background: '#183d2b',
   grid: '#24543a',
-  border: '#6f9b72',
-  label: '#9fc89c'
+  border: '#6f9b72'
 };
 
 window.addEventListener('keydown', (event) => {
@@ -528,10 +527,6 @@ function drawMap() {
   for (let y = 20; y < canvas.height; y += 40) { context.beginPath(); context.moveTo(0, y); context.lineTo(canvas.width, y); context.stroke(); }
   context.strokeStyle = boardPalette.border;
   context.strokeRect(16, 16, canvas.width - 32, canvas.height - 32);
-  context.fillStyle = boardPalette.label;
-  context.font = '10px monospace';
-  context.fillText('OPEN TERRAIN', 28, 38);
-  context.fillText('NO WALLS / NO LIMITS', canvas.width - 158, canvas.height - 25);
   collectibles.filter((item) => item.active).forEach(drawCollectible);
   hazards.filter((hazard) => hazard.active).forEach(drawMushroom);
   if (rat) drawRat();
